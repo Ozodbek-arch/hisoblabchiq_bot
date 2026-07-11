@@ -9,14 +9,22 @@
     
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            /* Ranglar logotipga moslashtirilgan: Qora, Oq, Neytral */
+            --bg-color: #f8f9fa; /* Juda ochiq kulrang fon */
             --panel-bg: #ffffff;
-            --primary-color: #2b2d42; /* Logotipga qarab buni o'zgartiramiz */
+            --primary-text: #1a1a1a; /* Logotipdagi qora rangga yaqin */
+            --secondary-text: #4a4a4a;
             --accent-color: #8d99ae;
-            --text-color: #2b2d42;
+            
             --danger-color: #d90429;
             --warning-color: #f39c12;
             --success-color: #2ecc71;
+            
+            /* Soyaeffektlari - kamtarona ko'rinish uchun */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.03);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+            
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -28,56 +36,64 @@
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--primary-text);
             overflow-x: hidden;
+            opacity: 0; /* Animatsiya uchun dastlab yashirin */
+        }
+        
+        body.loaded {
+            opacity: 1;
+            transition: opacity 1.5s ease-out; /* Butun sahifaning paydo bo'lish animatsiyasi */
         }
 
-        /* 1. Kirish Animatsiyasi (Welcome Overlay) */
+        /* 1. Kirish Animatsiyasi va Logotip */
         #welcome-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--primary-color);
+            background: var(--panel-bg);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
+            transition: opacity 1.2s ease, visibility 1.2s;
         }
 
-        .welcome-text {
-            color: #ffffff;
-            font-size: 2.5rem;
+        .welcome-logo {
+            font-size: 3rem;
             font-weight: 600;
-            letter-spacing: 2px;
+            color: var(--primary-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1.2s forwards 0.3s;
+            transform: scale(0.9);
+            animation: logoFadeIn 1s forwards 0.2s;
         }
-
+        
         .welcome-sub {
-            color: var(--accent-color);
-            margin-top: 10px;
-            font-size: 1rem;
+            color: var(--secondary-text);
+            margin-top: 15px;
+            font-size: 1.1rem;
             opacity: 0;
-            animation: fadeIn 1.5s forwards 0.8s;
+            animation: fadeIn 1.2s forwards 0.8s;
         }
 
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes logoFadeIn {
+            to { opacity: 1; transform: scale(1); }
         }
         @keyframes fadeIn {
             to { opacity: 1; }
         }
 
-        /* 2. Asosiy Interfeys */
+        /* 2. Asosiy Interfeys va Qidiruv */
         header {
             background: var(--panel-bg);
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -93,9 +109,9 @@
         }
 
         .logo-area {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 600;
-            color: var(--primary-color);
+            color: var(--primary-text);
         }
 
         .search-box {
@@ -106,15 +122,15 @@
         .search-box input {
             width: 100%;
             padding: 12px 40px 12px 15px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e0e0e0;
             border-radius: 25px;
             outline: none;
-            transition: all 0.3s;
+            transition: var(--transition);
             background: #f1f5f9;
         }
 
         .search-box input:focus {
-            border-color: var(--primary-color);
+            border-color: var(--primary-text);
             background: #fff;
             box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
@@ -142,15 +158,15 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            animation: slideIn 0.3s ease;
+            animation: slideInFromTop 0.3s ease-out;
         }
 
         .alert-warning { background: #fff3cd; color: #856404; border-left: 5px solid var(--warning-color); }
         .alert-danger { background: #f8d7da; color: #721c24; border-left: 5px solid var(--danger-color); }
 
-        @keyframes slideIn {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes slideInFromTop {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         /* Mahsulotlar Grid Tizimi */
@@ -167,21 +183,27 @@
             margin-top: 20px;
         }
 
-        /* Premium Mahsulot Kartasi */
+        /* Mahsulot Kartasi */
         .product-card {
             background: var(--panel-bg);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
             position: relative;
             display: flex;
             flex-direction: column;
+            animation: cardFadeIn 0.5s ease forwards;
+            opacity: 0; /* JS orqali silliq paydo bo'ladi */
+        }
+
+        @keyframes cardFadeIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+            box-shadow: var(--shadow-md);
         }
 
         .image-container {
@@ -222,7 +244,7 @@
 
         .product-price {
             font-weight: 600;
-            color: var(--primary-color);
+            color: var(--primary-text);
         }
 
         .product-info {
@@ -237,6 +259,7 @@
             font-size: 1.1rem;
             font-weight: 500;
             margin-bottom: 8px;
+            color: var(--primary-text);
         }
 
         /* Status belgilari */
@@ -256,7 +279,7 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: var(--primary-color);
+            background: var(--primary-text);
             color: white;
             width: 60px;
             height: 60px;
@@ -268,21 +291,24 @@
             cursor: pointer;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             z-index: 99;
-            transition: transform 0.3s;
+            transition: var(--transition);
         }
 
-        .add-btn-float:hover { transform: scale(1.1) rotate(90deg); }
+        .add-btn-float:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
 
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .modal.active { opacity: 1; visibility: visible; }
@@ -293,11 +319,11 @@
             border-radius: 16px;
             width: 90%;
             max-width: 450px;
-            transform: scale(0.8);
-            transition: all 0.3s ease;
+            transform: translateY(30px);
+            transition: var(--transition);
         }
 
-        .modal.active .modal-content { transform: scale(1); }
+        .modal.active .modal-content { transform: translateY(0); }
 
         .form-group {
             margin-bottom: 15px;
@@ -307,6 +333,7 @@
             display: block;
             margin-bottom: 5px;
             font-size: 0.9rem;
+            color: var(--secondary-text);
         }
 
         .form-group input {
@@ -314,37 +341,48 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
+            outline: none;
+        }
+        
+        .form-group input:focus {
+            border-color: var(--primary-text);
         }
 
         .submit-btn {
             width: 100%;
             padding: 12px;
-            background: var(--primary-color);
+            background: var(--primary-text);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .submit-btn:hover {
+            opacity: 0.9;
         }
 
         .close-modal {
             float: right;
             cursor: pointer;
             color: var(--accent-color);
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
 
     <div id="welcome-overlay">
-        <div class="welcome-text">IMARKET</div>
+        <div class="welcome-logo">IMarket</div>
         <div class="welcome-sub">Xush kelibsiz, Boss! Panel tayyorlanmoqda...</div>
     </div>
 
     <header>
         <div class="header-top">
-            <div class="logo-area"><i class="fa-solid fa-cubes"></i> IMarket</div>
-            <div style="font-size: 0.85rem; color: var(--accent-color);"><i class="fa-solid fa-user-shield"></i> Faqat siz uchun</div>
+            <div class="logo-area">IMarket</div>
+            <div style="font-size: 0.85rem; color: var(--accent-color);"><i class="fa-solid fa-user-shield"></i> Shaxsiy botingiz</div>
         </div>
         <div class="search-box">
             <input type="text" id="search-input" placeholder="Mahsulot nomini yozib qidiring..." oninput="filterProducts()">
@@ -368,7 +406,7 @@
             <h3 style="margin-bottom: 15px;">Yangi Maxsulot Qo'shish</h3>
             <form id="product-form" onsubmit="saveProduct(event)">
                 <div class="form-group">
-                    <label>Mahsulot Nomi</label>
+                    <label>Mahsulot Nomi (Qidirish uchun)</label>
                     <input type="text" id="p-name" required>
                 </div>
                 <div class="form-group">
@@ -376,12 +414,12 @@
                     <input type="url" id="p-img" placeholder="https://..." required>
                 </div>
                 <div class="form-group">
-                    <label>Narxi ($ yoki So'm)</label>
-                    <input type="text" id="p-price" required>
+                    <label>Narxi</label>
+                    <input type="text" id="p-price" placeholder="Misol: 150,000 so'm" required>
                 </div>
                 <div class="form-group">
-                    <label>Soni (Omborda)</label>
-                    <input type="number" id="p-stock" required>
+                    <label>Soni (Omborda nechta borligi)</label>
+                    <input type="number" id="p-stock" min="0" required>
                 </div>
                 <div class="form-group">
                     <label>Oylik Sotuv Soni (Statistika uchun)</label>
@@ -393,16 +431,19 @@
     </div>
 
     <script>
-        // TELEGRAM BOT CONFIG (Tokeningizni shu yerga qo'yasiz)
+        // TELEGRAM BOT CONFIG (Xavfsizlik uchun faqat siz foydalanasiz)
+        // Bot tokeningizni bu yerga o'zingiz yozing
         const BOT_TOKEN = "BOT_TOKENINGIZNI_SHU_YERGA_YOZING";
-        const CHAT_ID = "TELEGRAM_ID_INGIZ";
+        const CHAT_ID = "TELEGRAM_ID_INGIZ"; // Xabarnomalar qayerga borishi uchun
 
-        // Animatsiyani o'chirib asosiy sahifani ochish
+        // Sahifa yuklangandan keyingi harakatlar
         window.addEventListener('DOMContentLoaded', () => {
+            // Animatsiyani o'chirib asosiy sahifani ochish
             setTimeout(() => {
                 const overlay = document.getElementById('welcome-overlay');
                 overlay.style.opacity = '0';
                 overlay.style.visibility = 'hidden';
+                document.body.classList.add('loaded'); // Sahifani silliq ochish
             }, 2500); // 2.5 soniya ko'rinib turadi
 
             renderProducts();
@@ -410,6 +451,7 @@
 
         // 1. Ma'lumotlarni eslab qolish (LocalStorage yuklash yoki default yaratish)
         let products = JSON.parse(localStorage.getItem('imarket_products')) || [
+            // Misol uchun dastlabki ma'lumotlar
             { id: 1, name: "Premium iPhone Case", img: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500", price: "150,000 so'm", stock: 3, sales: 12 },
             { id: 2, name: "Wireless Earbuds v2", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500", price: "320,000 so'm", stock: 0, sales: 0 },
             { id: 3, name: "Smart Watch Skromniy", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", price: "450,000 so'm", stock: 15, sales: 1 }
@@ -444,8 +486,8 @@
             toggleModal(false);
             document.getElementById('product-form').reset();
             
-            // Telegramga bildirishnoma yuborish (ixtiyoriy)
-            sendTelegramNotification(`Yangi mahsulot qo'shildi: ${newProd.name}`);
+            // Telegramga bildirishnoma yuborish (ixtiyoriy, token bo'lsa)
+            sendTelegramNotification(`🆕 Yangi mahsulot qo'shildi: ${newProd.name}`);
         }
 
         // O'chirish o'rniga Soni=0 bo'lsa "Sotuvda yo'q" yozish mantig'i bilan render qilish
@@ -455,23 +497,21 @@
             container.innerHTML = '';
             alertsZone.innerHTML = '';
 
-            let alertCount = 0;
-
-            products.forEach(p => {
-                // Kam qolgan tovar ogohlantiruvi (agar 1 tadan 5 tagacha bo'lsa)
+            products.forEach((p, index) => {
+                // Kam qolgan tovar ogohlantiruvi (agar 1 tadan 4 tagacha bo'lsa)
                 if (p.stock > 0 && p.stock <= 4) {
-                    alertsZone.innerHTML += `<div class="alert-item alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> <b>${p.name}</b> zaxirasi kam qoldi! (Atigi ${p.stock} ta)</div>`;
+                    alertsZone.innerHTML += `<div class="alert-item alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ <b>${p.name}</b> zaxirasi kam qoldi! (Atigi ${p.stock} ta)</div>`;
                 }
                 
                 // Sotilmayotgan tovar ogohlantiruvi (Agar omborda bor bo'lsa-yu lekin sotuv 0 bo'lsa)
                 if (p.sales === 0 && p.stock > 0) {
-                    alertsZone.innerHTML += `<div class="alert-item alert-danger"><i class="fa-solid fa-chart-line-down"></i> Diqqat! <b>${p.name}</b> mahsuloti umuman sotilmayapti!</div>`;
+                    alertsZone.innerHTML += `<div class="alert-item alert-danger"><i class="fa-solid fa-chart-line-down"></i> 📉 Diqqat! <b>${p.name}</b> mahsuloti umuman sotilmayapti!</div>`;
                 }
 
                 const isOut = p.stock === 0;
 
                 const cardHtml = `
-                    <div class="product-card">
+                    <div class="product-card" style="animation-delay: ${index * 0.1}s; transform: translateY(10px);">
                         <div class="image-container">
                             <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/300?text=Rasm+Yoq'">
                             <div class="image-overlay-panel">
