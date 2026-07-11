@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iMarket Premium Control Panel Pro</title>
+    <title>iMarket Ultimate Management Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-main: #f5f5f7;
+            --bg-main: #f4f4f6;
             --bg-card: #ffffff;
             --bg-input: #f2f2f7;
             --text-main: #1d1d1f;
             --text-muted: #86868b;
             --accent: #0071e3;
-            --border: rgba(0, 0, 0, 0.06);
+            --border: rgba(0, 0, 0, 0.08);
             --danger: #ff3b30;
             --warning: #ff9500;
             --success: #34c759;
@@ -25,43 +25,61 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
-        body { background-color: var(--bg-main); color: var(--text-main); overflow-x: hidden; padding-bottom: 110px; }
+        
+        /* O'ZBEKONA DO'PPI NAQSHLARI VA iMARKET SUv BELGILARI BILAN BOYITILGAN ORQA FON */
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            overflow-x: hidden; 
+            padding-bottom: 120px;
+            background-image: 
+                radial-gradient(rgba(0, 113, 227, 0.03) 1px, transparent 0),
+                linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.01) 1px, transparent 1px);
+            background-size: 24px 24px, 50px 50px, 50px 50px;
+            position: relative;
+        }
+        
+        /* Do'ppi nusxali naqsh simulyatsiyasi */
+        body::before {
+            content: "iMarket iMarket iMarket";
+            position: fixed; top: 15%; left: -5%; font-size: 8rem; font-family: var(--font-title);
+            font-weight: 700; color: rgba(0,0,0,0.015); transform: rotate(-15deg); z-index: -2; pointer-events: none;
+        }
+        body::after {
+            content: "❖ ❖ ❖ ❖";
+            position: fixed; bottom: 20%; right: 5%; font-size: 6rem;
+            color: rgba(0, 113, 227, 0.02); z-index: -2; pointer-events: none; letter-spacing: 20px;
+        }
 
         /* NEON ANIMATSIYALI SPLASH SCREEN */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000000; display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .splash-logo {
             font-family: var(--font-title); font-size: 3.8rem; font-weight: 700;
             color: #fff; letter-spacing: -1px; text-shadow: 0 0 25px rgba(255,255,255,0.5);
             opacity: 0; transform: scale(0.7); animation: neonPulse 0.8s 0.2s forwards ease-out;
         }
-        .splash-welcome {
-            font-size: 1.1rem; font-weight: 500; color: #86868b; margin-top: 15px;
-            letter-spacing: 2px; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s 0.5s forwards ease-out;
-        }
         @keyframes neonPulse { to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
         header {
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px); padding: 20px;
+            -webkit-backdrop-filter: blur(25px); padding: 16px 20px;
             border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
         }
-
         .header-wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
-        
-        .brand-logo { font-family: var(--font-title); font-size: 1.9rem; font-weight: 700; color: #000; letter-spacing: -1px; display: flex; align-items: center; gap: 6px; }
+        .brand-logo { font-family: var(--font-title); font-size: 1.9rem; font-weight: 700; color: #000; letter-spacing: -1px; display: flex; align-items: center; gap: 6px; cursor: pointer;}
         .brand-logo span { color: var(--accent); }
-        .brand-logo i { font-size: 1.4rem; animation: rotateLogo 4s infinite linear; }
-        @keyframes rotateLogo { 100% { transform: rotate(360deg); } }
         
-        .live-ticker { display: flex; align-items: center; gap: 12px; background: #e8e8ed; padding: 6px 14px; border-radius: 10px; }
-        .ticker-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: #1d1d1f; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn-top-panel { padding: 8px 14px; background: #000; color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        .btn-top-panel.accent-btn { background: var(--accent); }
+        .btn-top-panel:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .controls-row { display: flex; gap: 12px; align-items: center; }
         .search-container { position: relative; flex-grow: 1; }
@@ -69,55 +87,50 @@
             width: 100%; padding: 12px 18px 12px 45px; background: var(--bg-input);
             border: 1px solid transparent; border-radius: 12px; outline: none; transition: var(--transition);
         }
-        .search-container input:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
+        .search-container input:focus { background: #fff; border-color: var(--accent); }
         .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
-        .sort-select { padding: 12px 15px; background: var(--bg-input); border: none; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
-
-        /* DINAMIK ASOSIY KATALOGLAR VA ICHKI KATALOGLAR */
-        .catalog-nav, .sub-catalog-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        /* KATALOG NAV */
+        .catalog-nav, .sub-catalog-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .catalog-nav::-webkit-scrollbar, .sub-catalog-nav::-webkit-scrollbar { display: none; }
-        
         .nav-item {
-            padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 8px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
             font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: var(--transition); color: #515154;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .nav-item.active { background: #000; color: #fff; border-color: #000; }
-        
-        .sub-catalog-nav { border-top: 1px solid var(--border); padding-top: 8px; display: none; }
-        .sub-item {
-            padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-            font-size: 0.8rem; font-weight: 500; cursor: pointer; color: #515154; white-space: nowrap; transition: var(--transition);
             display: flex; align-items: center; gap: 6px;
         }
+        .nav-item.active { background: #000; color: #fff; border-color: #000; }
+        .sub-catalog-nav { border-top: 1px solid var(--border); padding-top: 8px; display: none; }
+        .sub-item { padding: 5px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.78rem; cursor: pointer; color: #515154; transition: var(--transition); }
         .sub-item.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        .delete-cat-btn { font-size: 0.7rem; color: var(--text-muted); transition: 0.2s; }
-        .delete-cat-btn:hover { color: var(--danger); }
-
-        /* Grid & Cards */
+        /* MAHSULOT PANELI */
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        
+        /* BILDIRISHNOMALAR PANELi */
+        .notification-banner {
+            background: #ffebeb; border: 1px solid rgba(255,59,48,0.15); border-radius: 14px;
+            padding: 12px 16px; margin-bottom: 20px; display: none; flex-direction: column; gap: 6px;
+        }
+        .banner-title { font-size: 0.85rem; font-weight: 700; color: var(--danger); display: flex; align-items: center; gap: 6px; }
+        .banner-items { font-size: 0.8rem; color: #515154; font-weight: 500; padding-left: 20px; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
         
         .product-card {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
             overflow: hidden; display: flex; flex-direction: column; transition: var(--transition); position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02); opacity: 0; transform: translateY(15px);
-            animation: cardAppear 0.4s ease forwards;
         }
-        @keyframes cardAppear { to { opacity: 1; transform: translateY(0); } }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
-
-        /* CARD ACTION TUGMALARI */
-        .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; z-index: 5; }
+        .product-card.low-stock-border { border: 1px solid rgba(255, 59, 48, 0.4); box-shadow: 0 0 10px rgba(255,59,48,0.05); }
+        
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 5; }
         .action-icon {
-            width: 32px; height: 32px; background: rgba(255, 255, 255, 0.95); border-radius: 50%;
+            width: 30px; height: 30px; background: rgba(255, 255, 255, 0.95); border-radius: 50%;
             display: flex; justify-content: center; align-items: center; color: #1d1d1f;
-            cursor: pointer; transition: var(--transition); border: 1px solid var(--border); font-size: 0.85rem;
+            cursor: pointer; border: 1px solid var(--border); font-size: 0.8rem;
         }
-        .action-icon.edit:hover { background: var(--warning); color: #fff; border-color: var(--warning); }
-        .action-icon.delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .action-icon.sell:hover { background: var(--success); color: #fff; }
+        .action-icon.edit:hover { background: var(--warning); color: #fff; }
+        .action-icon.delete:hover { background: var(--danger); color: #fff; }
 
         .img-box { position: relative; width: 100%; padding-top: 100%; background: #f5f5f7; }
         .img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -125,161 +138,167 @@
         .img-meta-panel {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: linear-gradient(to top, rgba(255,255,255,1) 40%, rgba(255,255,255,0));
-            padding: 12px; display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 10px; display: flex; justify-content: space-between; align-items: flex-end;
         }
-        .meta-stock { font-size: 0.75rem; font-weight: 600; color: #86868b; background: rgba(0,0,0,0.04); padding: 3px 6px; border-radius: 6px; }
-        .meta-price { font-family: var(--font-title); font-weight: 700; font-size: 1.05rem; }
+        .meta-stock { font-size: 0.7rem; font-weight: 700; padding: 3px 6px; border-radius: 6px; background: rgba(0,0,0,0.04); }
+        .meta-stock.danger-stock { background: #ffebeb; color: var(--danger); }
+        .meta-price { font-family: var(--font-title); font-weight: 700; font-size: 1rem; }
 
-        .info-box { padding: 12px; background: #fff; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
-        .product-name { font-size: 0.95rem; font-weight: 600; line-height: 1.3; }
-        .meta-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
-        .sub-tag { font-size: 0.65rem; font-weight: 600; color: var(--accent); background: rgba(0,113,227,0.06); padding: 2px 6px; border-radius: 4px; }
-        .date-tag { font-size: 0.7rem; color: var(--text-muted); }
+        .info-box { padding: 12px; background: #fff; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+        .product-name { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+        .meta-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .sub-tag { font-size: 0.65rem; font-weight: 600; color: var(--accent); background: rgba(0,113,227,0.06); padding: 2px 5px; border-radius: 4px; }
 
-        /* ACHCHYOT BAR */
+        /* JONLI ACHCHYOT PASI */
         .report-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: #121214; color: #fff; border-top: 1px solid rgba(255,255,255,0.08);
-            padding: 14px 20px; z-index: 999; box-shadow: 0 -8px 24px rgba(0,0,0,0.15);
+            padding: 12px 20px; z-index: 999;
         }
         .report-wrap { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .report-stats { display: flex; gap: 25px; }
-        .report-item { display: flex; flex-direction: column; gap: 2px; }
-        .report-label { font-size: 0.7rem; font-weight: 500; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-        .report-val { font-family: var(--font-title); font-size: 1.05rem; font-weight: 600; color: #ffffff; }
-        .report-val.green { color: #30d158; }
+        .report-stats { display: flex; gap: 20px; }
+        .report-item { display: flex; flex-direction: column; }
+        .report-label { font-size: 0.65rem; color: #8e8e93; text-transform: uppercase; }
+        .report-val { font-family: var(--font-title); font-size: 1rem; font-weight: 600; }
 
-        /* FLOATING TUGMALAR GURUHI */
-        .action-buttons { position: fixed; bottom: 75px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+        /* FLOATING BUTTONS */
+        .action-buttons { position: fixed; bottom: 70px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
         .fab {
-            width: 50px; height: 50px; color: #fff; border-radius: 50%; display: flex;
-            justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: var(--transition);
+            width: 48px; height: 48px; color: #fff; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .fab.add-product { background: #0071e3; }
         .fab.add-catalog { background: #34c759; }
-        .fab:hover { transform: scale(1.08); }
 
-        /* Modallar uchun umumiy overlay */
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex;
             justify-content: center; align-items: center; z-index: 10000; opacity: 0; visibility: hidden; transition: var(--transition);
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-body {
-            background: #fff; padding: 22px; border-radius: 20px; width: 90%; max-width: 440px;
-            max-height: 85vh; overflow-y: auto; transform: scale(0.95); transition: var(--transition);
+            background: #fff; padding: 20px; border-radius: 18px; width: 92%; max-width: 460px;
+            max-height: 85vh; overflow-y: auto;
         }
-        .modal-overlay.active .modal-body { transform: scale(1); }
-        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; background: var(--bg-input); border: none; border-radius: 8px; outline: none; font-weight: 500; }
-        .image-upload-zone { border: 2px dashed rgba(0,0,0,0.1); padding: 18px; border-radius: 10px; text-align: center; background: var(--bg-input); cursor: pointer; }
-        .preview-img-container { margin-top: 8px; display: none; width: 100%; height: 110px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
-        .preview-img-container img { width: 100%; height: 100%; object-fit: contain; }
-        .btn-submit { width: 100%; padding: 12px; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: var(--bg-input); border: none; border-radius: 8px; outline: none; font-weight: 500; }
+        .btn-submit { width: 100%; padding: 12px; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+
+        /* ALOHIDA BAXTLI OYNALAR (DASHBOARD VA HISOBOT TEXT) */
+        .analytics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .analytics-card { background: var(--bg-input); padding: 10px; border-radius: 10px; text-align: center; }
+        .analytics-num { font-family: var(--font-title); font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+        .analytics-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+        
+        .report-textarea { width: 100%; height: 180px; font-family: monospace; font-size: 0.8rem; background: #1c1c1e; color: #30d158; padding: 12px; border-radius: 8px; border: none; resize: none; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
         <div class="brand-logo splash-logo" style="color:white;"><i class="fa-solid fa-circle-notch"></i> iMarket<span>.</span></div>
-        <div class="splash-welcome">iMarket Premium Tizimiga Xush Kelibsiz</div>
     </div>
 
     <header>
         <div class="header-wrap">
             <div class="header-top">
-                <div class="brand-logo"><i class="fa-solid fa-circle-notch"></i> iMarket<span>.</span></div>
-                <div class="live-ticker">
-                    <div class="ticker-item"><i class="fa-regular fa-calendar"></i> <span id="live-date">--.--.----</span></div>
-                    <div class="ticker-item"><i class="fa-regular fa-clock"></i> <span id="live-clock">00:00:00</span></div>
+                <div class="brand-logo" onclick="location.reload()"><i class="fa-solid fa-circle-notch"></i> iMarket<span>.</span></div>
+                <div class="header-actions">
+                    <button class="btn-top-panel accent-btn" onclick="openAnalyticsModal()"><i class="fa-solid fa-chart-pie"></i> Oyna Markazi</button>
+                    <button class="btn-top-panel" onclick="openDailyReportModal()"><i class="fa-solid fa-receipt"></i> Kunlik Hisobot</button>
+                    <button class="btn-top-panel" style="background:#5856d6;" onclick="backupData()" title="Xavfsizlik zaxirasi"><i class="fa-solid fa-download"></i> Zaxira</button>
                 </div>
             </div>
 
             <div class="controls-row">
                 <div class="search-container">
-                    <input type="text" id="search-input" placeholder="iMarket omboridan qidirish..." oninput="filterAndRender()">
+                    <input type="text" id="search-input" placeholder="Ombordan tezkor qidiruv..." oninput="filterAndRender()">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <select class="sort-select" id="price-sort" onchange="filterAndRender()">
                     <option value="default">Saralash</option>
-                    <option value="low-high">Arzonidan qimmatiga</option>
-                    <option value="high-low">Qimmatidan arzoniga</option>
+                    <option value="low-high">Arzonidan</option>
+                    <option value="high-low">Qimmatidan</option>
                 </select>
             </div>
             
             <div class="catalog-nav" id="main-categories-nav"></div>
-            
             <div class="sub-catalog-nav" id="sub-categories-nav"></div>
         </div>
     </header>
 
     <main class="container">
+        <div class="notification-banner" id="low-stock-banner">
+            <div class="banner-title"><i class="fa-solid fa-triangle-exclamation"></i> OMBOREDA KAM QOLGAN MAHSULOTLAR (3 TAdAN KAM):</div>
+            <div class="banner-items" id="low-stock-list"></div>
+        </div>
+
         <div class="products-grid" id="products-container"></div>
     </main>
 
     <div class="report-bar">
         <div class="report-wrap">
             <div class="report-stats">
-                <div class="report-item">
-                    <span class="report-label">Jami Tovar</span>
-                    <span class="report-val" id="total-stock-count">0 ta</span>
-                </div>
-                <div class="report-item">
-                    <span class="report-label">Ombor Umumiy Qiymati</span>
-                    <span class="report-val green" id="total-price-sum">0 so'm</span>
-                </div>
+                <div class="report-item"><span class="report-label">Jami Tovar</span><span class="report-val" id="total-stock-count">0 ta</span></div>
+                <div class="report-item"><span class="report-label">Bugungi Kassa Jami</span><span class="report-val" style="color:#30d158;" id="total-price-sum">0 so'm</span></div>
+                <div class="report-item"><span class="report-label">Bugun Sotildi</span><span class="report-val" style="color:#ff9500;" id="today-sales-count">0 ta</span></div>
             </div>
-            <span style="font-size: 0.65rem; color: #8e8e93; font-weight: 600; text-transform: uppercase;">iMarket Stats</span>
+            <span style="font-size: 0.6rem; color: #8e8e93; font-weight: 700;">iMARKET PRO</span>
         </div>
     </div>
 
     <div class="action-buttons">
-        <div class="fab add-catalog" onclick="toggleCatModal(true)" title="Katalog yaratish"><i class="fa-solid fa-folder-plus"></i></div>
-        <div class="fab add-product" onclick="openAddProductModal()" title="Mahsulot qo'shish"><i class="fa-solid fa-plus"></i></div>
+        <div class="fab add-catalog" onclick="toggleCatModal(true)"><i class="fa-solid fa-folder-plus"></i></div>
+        <div class="fab add-product" onclick="openAddProductModal()"><i class="fa-solid fa-plus"></i></div>
+    </div>
+
+    <div class="modal-overlay" id="analytics-modal">
+        <div class="modal-body">
+            <div class="modal-head">
+                <h3 style="font-size: 1.1rem;"><i class="fa-solid fa-chart-simple"></i> Kataloglar Bo'yicha Tahlil</h3>
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="document.getElementById('analytics-modal').classList.remove('active')"></i>
+            </div>
+            <div class="analytics-grid" id="analytics-catalog-list">
+                </div>
+            <h4 style="font-size:0.85rem; margin-top:15px; margin-bottom:5px; color:var(--danger);"><i class="fa-solid fa-arrow-down-short-wide"></i> Umuman Sotilmay Yotgan Tovarlar (Zaxirasi to'liq):</h4>
+            <div id="unsold-products-list" style="font-size:0.8rem; color:#515154; line-height:1.4;"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="daily-report-modal">
+        <div class="modal-body">
+            <div class="modal-head">
+                <h3 style="font-size: 1.1rem;"><i class="fa-solid fa-print"></i> Kunlik Avtomat Hisobot</h3>
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="document.getElementById('daily-report-modal').classList.remove('active')"></i>
+            </div>
+            <p style="font-size: 0.75rem; color:var(--text-muted); margin-bottom:10px;">Telegram botga yoki guruhga nusxalab tashlash uchun tayyor hisobot matni:</p>
+            <textarea class="report-textarea" id="report-text-area" readonly></textarea>
+            <button class="btn-submit" style="background:#0071e3;" onclick="copyReportText()"><i class="fa-solid fa-copy"></i> Matnni nusxalash</button>
+            <button class="btn-submit" style="background:#ff3b30; margin-top:5px;" onclick="resetDailySales()"><i class="fa-solid fa-trash-arrow-up"></i> Kunlik Savdoni Yangilash (0 ga tushirish)</button>
+        </div>
     </div>
 
     <div class="modal-overlay" id="product-modal">
         <div class="modal-body">
             <div class="modal-head">
-                <h3 id="modal-title" style="font-size: 1.1rem;">Yangi Mahsulot Kiritish</h3>
+                <h3 id="modal-title" style="font-size: 1.1rem;">Mahsulot</h3>
                 <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleModal(false)"></i>
             </div>
             <form id="product-form" onsubmit="handleProductSubmit(event)">
                 <input type="hidden" id="edit-product-id">
-                <div class="form-group">
-                    <label>Asosiy Katalog</label>
-                    <select id="p-main-category" onchange="handleModalMainCatChange()" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Ichki Katalog (Sub-Katalog)</label>
-                    <select id="p-sub-category" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Mahsulot Nomi</label>
-                    <input type="text" id="p-name" placeholder="Masalan: iPhone 15 Pro Max Silk" required>
-                </div>
+                <div class="form-group"><label>Asosiy Katalog</label><select id="p-main-category" onchange="handleModalMainCatChange()" required></select></div>
+                <div class="form-group"><label>Ichki Katalog</label><select id="p-sub-category" required></select></div>
+                <div class="form-group"><label>Nomi</label><input type="text" id="p-name" required></div>
                 <div class="form-group" id="img-upload-group">
                     <label>Rasmi</label>
-                    <div class="image-upload-zone" onclick="document.getElementById('p-file').click()">
-                        <i class="fa-solid fa-camera" style="margin-bottom:5px;"></i>
-                        <p>Yuklash uchun bosing</p>
-                        <input type="file" id="p-file" accept="image/*" onchange="previewImage(this)">
-                    </div>
+                    <input type="file" id="p-file" accept="image/*" onchange="previewImage(this)">
                 </div>
                 <div class="preview-img-container" id="preview-container"><img id="img-preview-src" src=""></div>
-                <div class="form-group">
-                    <label>Sotuv Narxi (so'm)</label>
-                    <input type="number" id="p-price" placeholder="75000" required>
-                </div>
-                <div class="form-group">
-                    <label>Ombordagi Soni</label>
-                    <input type="number" id="p-stock" min="0" placeholder="50" required>
-                </div>
-                <button type="submit" id="btn-product-submit" class="btn-submit">Omborga Joylash</button>
+                <div class="form-group"><label>Narxi (so'm)</label><input type="number" id="p-price" required></div>
+                <div class="form-group"><label>Zaxiradagi Soni</label><input type="number" id="p-stock" min="0" required></div>
+                <button type="submit" id="btn-product-submit" class="btn-submit">Saqlash</button>
             </form>
         </div>
     </div>
@@ -287,228 +306,245 @@
     <div class="modal-overlay" id="catalog-modal">
         <div class="modal-body">
             <div class="modal-head">
-                <h3 style="font-size: 1.1rem;">Katalog Konfiguratsiyasi</h3>
+                <h3 style="font-size: 1.1rem;">Katalog Yaratish</h3>
                 <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleCatModal(false)"></i>
             </div>
             <form id="catalog-form" onsubmit="saveCatalog(event)">
                 <div class="form-group">
                     <label>Turi</label>
                     <select id="c-type" onchange="handleCatTypeChange()">
-                        <option value="main">Asosiy Katalog Yaratish</option>
-                        <option value="sub">Katalog Ichiga Ichki Katalog Qo'shish</option>
+                        <option value="main">Asosiy Katalog</option>
+                        <option value="sub">Ichki Katalog (Sub-Katalog)</option>
                     </select>
                 </div>
-                <div class="form-group id-parent-group" id="parent-cat-select-group" style="display:none;">
-                    <label>Qaysi Asosiy Katalog Ichiga Qo'shilsin?</label>
+                <div class="form-group" id="parent-cat-select-group" style="display:none;">
+                    <label>Asosiy Katalogni tanlang</label>
                     <select id="c-parent-id"></select>
                 </div>
-                <div class="form-group">
-                    <label>Katalog Nomi</label>
-                    <input type="text" id="c-name" placeholder="Masalan: Chexollar, iPhone, Samsung" required>
-                </div>
+                <div class="form-group"><label>Nomi</label><input type="text" id="c-name" required></div>
                 <div class="form-group" id="c-icon-group">
                     <label>Ikonka</label>
                     <select id="c-icon">
                         <option value="fa-mobile-screen-button">📱 Telefon</option>
-                        <option value="fa-shield-halved">🛡️ Stiklo / Himoya</option>
-                        <option value="fa-headphones">🎧 Audio / Naushnik</option>
+                        <option value="fa-shield-halved">🛡️ Stiklo</option>
+                        <option value="fa-headphones">🎧 Audio</option>
                         <option value="fa-clock">⌚ Smart Soat</option>
-                        <option value="fa-plug">🔌 Zaryadnik</option>
-                        <option value="fa-bolt">⚡ Kabel</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-submit" style="background: #34c759;">Saqlash</button>
+                <button type="submit" class="btn-submit" style="background: #34c759;">Yaratish</button>
             </form>
         </div>
     </div>
 
     <script>
-        let currentCategory = 'all';
-        let currentSubCategory = 'all';
-        let encodedImageBase64 = "";
-
-        // BOSHLANG'ICH ASOSIY KATALOGLAR
+        let currentCategory = 'all'; let currentSubCategory = 'all'; let encodedImageBase64 = "";
+        
         let defaultCategories = [
-            { id: 'all', name: 'Barchasi', icon: 'fa-border-all', isMain: true },
-            { id: 'cat-chexol', name: 'Chexollar', icon: 'fa-mobile-screen-button', isMain: true },
-            { id: 'cat-stiklo', name: 'Stiklolar', icon: 'fa-shield-halved', isMain: true }
+            { id: 'all', name: 'Barchasi', icon: 'fa-border-all' },
+            { id: 'cat-chexol', name: 'Chexollar', icon: 'fa-mobile-screen-button' },
+            { id: 'cat-stiklo', name: 'Stiklolar', icon: 'fa-shield-halved' }
         ];
-
-        // BOSHLANG'ICH ICHKIDAGI KATALOGLAR (SUB-KATALOGLAR)
         let defaultSubCategories = [
             { id: 'sub-iphone', parentId: 'cat-chexol', name: 'iPhone' },
-            { id: 'sub-samsung', parentId: 'cat-chexol', name: 'Samsung' },
-            { id: 'sub-xiaomi', parentId: 'cat-chexol', name: 'Xiaomi' },
-            { id: 'sub-9d', parentId: 'cat-stiklo', name: 'Premium 9D' },
-            { id: 'sub-anti', parentId: 'cat-stiklo', name: 'Antishpion' }
+            { id: 'sub-samsung', parentId: 'cat-chexol', name: 'Samsung' }
         ];
 
         let categories = JSON.parse(localStorage.getItem('imarket_main_cats')) || defaultCategories;
         let subCategories = JSON.parse(localStorage.getItem('imarket_sub_cats')) || defaultSubCategories;
         let products = JSON.parse(localStorage.getItem('imarket_premium_products')) || [];
+        
+        // Bugun sotilgan tovarlar ro'yxatini eslab qolish xotirasi
+        let dailySales = JSON.parse(localStorage.getItem('imarket_daily_sales')) || {};
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderCategories();
-            filterAndRender();
-            startLiveClock();
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0'; setTimeout(() => splash.style.display = 'none', 600);
-            }, 1500);
+            renderCategories(); filterAndRender(); checkLowStock();
+            setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500); }, 1000);
         });
 
-        function startLiveClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('live-clock').innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-                document.getElementById('live-date').innerText = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
-            }, 1000);
-        }
-
         function renderCategories() {
-            const mainNav = document.getElementById('main-categories-nav');
-            mainNav.innerHTML = '';
-            
+            const mainNav = document.getElementById('main-categories-nav'); mainNav.innerHTML = '';
             categories.forEach(cat => {
-                const activeClass = cat.id === currentCategory ? 'active' : '';
-                const delBtn = (cat.id !== 'all') ? `<i class="fa-solid fa-trash delete-cat-btn" style="margin-left:6px;" onclick="deleteMainCatalog('${cat.id}', event)"></i>` : '';
-                mainNav.innerHTML += `<div class="nav-item ${activeClass}" onclick="switchMainCategory('${cat.id}')"><i class="fa-solid ${cat.icon}"></i> ${cat.name} ${delBtn}</div>`;
+                const active = cat.id === currentCategory ? 'active' : '';
+                const del = (cat.id !== 'all') ? `<i class="fa-solid fa-xmark delete-cat-btn" style="margin-left:6px;" onclick="deleteMainCatalog('${cat.id}', event)"></i>` : '';
+                mainNav.innerHTML += `<div class="nav-item ${active}" onclick="switchMainCategory('${cat.id}')"><i class="fa-solid ${cat.icon}"></i> ${cat.name} ${del}</div>`;
             });
             renderSubCategories();
         }
 
         function renderSubCategories() {
             const subNav = document.getElementById('sub-categories-nav');
-            
-            if (currentCategory === 'all') {
-                subNav.style.display = 'none';
-                return;
-            }
-
-            const filteredSubs = subCategories.filter(s => s.parentId === currentCategory);
-            
-            if(filteredSubs.length >= 0) {
-                subNav.style.display = 'flex';
-                const activeAll = currentSubCategory === 'all' ? 'active' : '';
-                let html = `<div class="sub-item ${activeAll}" onclick="switchSubCategory('all')">Barchasi</div>`;
-                
-                filteredSubs.forEach(sub => {
-                    const activeClass = sub.id === currentSubCategory ? 'active' : '';
-                    html += `
-                        <div class="sub-item ${activeClass}" onclick="switchSubCategory('${sub.id}')">
-                            ${sub.name} 
-                            <i class="fa-solid fa-xmark delete-cat-btn" onclick="deleteSubCatalog('${sub.id}', event)"></i>
-                        </div>`;
-                });
-                subNav.innerHTML = html;
-            }
+            if (currentCategory === 'all') { subNav.style.display = 'none'; return; }
+            const filtered = subCategories.filter(s => s.parentId === currentCategory);
+            subNav.style.display = 'flex';
+            let html = `<div class="sub-item ${currentSubCategory === 'all' ? 'active' : ''}" onclick="switchSubCategory('all')">Barchasi</div>`;
+            filtered.forEach(sub => {
+                html += `<div class="sub-item ${sub.id === currentSubCategory ? 'active' : ''}" onclick="switchSubCategory('${sub.id}')">${sub.name} <i class="fa-solid fa-xmark delete-cat-btn" onclick="deleteSubCatalog('${sub.id}', event)"></i></div>`;
+            });
+            subNav.innerHTML = html;
         }
 
-        function switchMainCategory(id) {
-            currentCategory = id;
-            currentSubCategory = 'all';
-            renderCategories();
-            filterAndRender();
-        }
+        function switchMainCategory(id) { currentCategory = id; currentSubCategory = 'all'; renderCategories(); filterAndRender(); }
+        function switchSubCategory(id) { currentSubCategory = id; renderSubCategories(); filterAndRender(); }
 
-        function switchSubCategory(id) {
-            currentSubCategory = id;
-            renderSubCategories();
-            filterAndRender();
-        }
-
-        function handleCatTypeChange() {
-            const type = document.getElementById('c-type').value;
-            const parentGroup = document.getElementById('parent-cat-select-group');
-            const iconGroup = document.getElementById('c-icon-group');
+        // BILDIRISHNOMA: 3 TAdAN KAM QOLGANLARNI TEKShIRISh
+        function checkLowStock() {
+            const lowStockItems = products.filter(p => p.stock <= 3);
+            const banner = document.getElementById('low-stock-banner');
+            const listContainer = document.getElementById('low-stock-list');
             
-            if (type === 'sub') {
-                parentGroup.style.display = 'block';
-                iconGroup.style.display = 'none';
-                
-                const select = document.getElementById('c-parent-id');
-                select.innerHTML = '';
-                categories.filter(c => c.id !== 'all').forEach(c => {
-                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
+            if(lowStockItems.length > 0) {
+                banner.style.display = 'flex';
+                listContainer.innerHTML = lowStockItems.map(p => `• <strong>${p.name}</strong> (Omborda atigi ${p.stock} ta qoldi!)`).join('<br>');
             } else {
-                parentGroup.style.display = 'none';
-                iconGroup.style.display = 'block';
+                banner.style.display = 'none';
             }
         }
 
-        function toggleModal(show) {
-            const modal = document.getElementById('product-modal');
-            if(show) modal.classList.add('active');
-            else { modal.classList.remove('active'); document.getElementById('product-form').reset(); document.getElementById('preview-container').style.display="none"; encodedImageBase64=""; }
+        // 1-OYNA: ALOHIDA BOSHQUV MARKAZI OYNASI
+        function openAnalyticsModal() {
+            const listContainer = document.getElementById('analytics-catalog-list');
+            listContainer.innerHTML = '';
+            
+            // Asosiy kataloglar bo'yicha tovarlar soni
+            categories.filter(c => c.id !== 'all').forEach(cat => {
+                const count = products.filter(p => p.category === cat.id).reduce((sum, p) => sum + p.stock, 0);
+                listContainer.innerHTML += `
+                    <div class="analytics-card">
+                        <div class="analytics-num">${count} ta</div>
+                        <div class="analytics-label">${cat.name}</div>
+                    </div>`;
+            });
+
+            // Sotilmay yotgan tovarlar (Zaxirasi kamaymaganlar yoki 10 tadan ko'p turganlar misolida)
+            const unsoldList = document.getElementById('unsold-products-list');
+            const unsold = products.filter(p => p.stock >= 10);
+            if(unsold.length > 0) {
+                unsoldList.innerHTML = unsold.map(p => `• ${p.name} (${p.stock} ta turibdi, harakat yo'q)`).join('<br>');
+            } else {
+                unsoldList.innerHTML = "Hamma tovarlar aylanmoqda.";
+            }
+
+            document.getElementById('analytics-modal').classList.add('active');
         }
 
-        function toggleCatModal(show) {
-            const modal = document.getElementById('catalog-modal');
-            if(show) { modal.classList.add('active'); handleCatTypeChange(); }
-            else { modal.classList.remove('active'); document.getElementById('catalog-form').reset(); }
+        // 2-OYNA: KUNLIK HISOBOT OYNASI MATN GENERATORI
+        function openDailyReportModal() {
+            const txt = document.getElementById('report-text-area');
+            const now = new Date();
+            
+            let totalStock = 0; let totalPriceSum = 0;
+            products.forEach(p => { totalStock += p.stock; totalPriceSum += (p.price * p.stock); });
+
+            let totalSoldToday = 0; let totalSalesSum = 0;
+            let soldItemsText = "";
+            
+            for(let id in dailySales) {
+                const p = products.find(prod => prod.id == id);
+                if(p) {
+                    const qty = dailySales[id];
+                    totalSoldToday += qty;
+                    totalSalesSum += (p.price * qty);
+                    soldItemsText += `   - ${p.name}: ${qty} ta\n`;
+                }
+            }
+            if(!soldItemsText) soldItemsText = "   - Bugun hali savdo qilinmadi.\n";
+
+            const lowStockItems = products.filter(p => p.stock <= 3);
+            let bringItemsText = "";
+            if(lowStockItems.length > 0) {
+                bringItemsText = lowStockItems.map(p => `   - ${p.name} (Qoldiq: ${p.stock} ta)`).join('\n');
+            } else {
+                bringItemsText = "   - Hamma tovarlar yetarli.";
+            }
+
+            let reportMatn = `=== iMARKET KUNLIK HISOBOT ===\n`;
+            reportMatn += `Sana: ${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}\n\n`;
+            reportMatn += `1. OMBORDA BOR NARSALAR:\n`;
+            reportMatn += `   - Jami tovar qoldig'i: ${totalStock} ta\n`;
+            reportMatn += `   - Ombordagi jami summa: ${totalPriceSum.toLocaleString()} so'm\n\n`;
+            reportMatn += `2. BUGUN SOTILGAN MAHSULOTLAR:\n${soldItemsText}`;
+            reportMatn += `   - Bugungi jami kassa: ${totalSalesSum.toLocaleString()} so'm\n\n`;
+            reportMatn += `3. TEZDA OLIB KELISH KERAK (QOLDIQ <= 3):\n${bringItemsText}\n`;
+            reportMatn += `==============================`;
+
+            txt.value = reportMatn;
+            document.getElementById('daily-report-modal').classList.add('active');
         }
+
+        // TOVAR SOTISh FUNKSIYASI (KASSAGA QO'ShADI)
+        function sellProduct(id) {
+            const p = products.find(prod => prod.id === id);
+            if(p && p.stock > 0) {
+                p.stock -= 1;
+                dailySales[id] = (dailySales[id] || 0) + 1;
+                
+                localStorage.setItem('imarket_premium_products', JSON.stringify(products));
+                localStorage.setItem('imarket_daily_sales', JSON.stringify(dailySales));
+                
+                filterAndRender(); checkLowStock();
+            } else {
+                alert("Omborda tovar qolmagan!");
+            }
+        }
+
+        function resetDailySales() {
+            if(confirm("Kunlik savdo hisobotini 0 ga tushirmoqchimisiz? (Omborda tovarlar qoldig'i o'zgarmaydi)")) {
+                dailySales = {};
+                localStorage.removeItem('imarket_daily_sales');
+                openDailyReportModal();
+                filterAndRender();
+            }
+        }
+
+        function copyReportText() {
+            const copyText = document.getElementById('report-text-area');
+            copyText.select(); document.execCommand("copy");
+            alert("Hisobot nusxalandi! Telegramga tashlashingiz mumkin.");
+        }
+
+        // 100% XAVFSIZLIK: MA'LUMOTLARNI ZAXIRALASh (BACKUP)
+        function backupData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({products, categories, subCategories}));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `iMarket_Ombor_Backup_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function toggleModal(show) { const modal = document.getElementById('product-modal'); if(show) modal.classList.add('active'); else { modal.classList.remove('active'); document.getElementById('product-form').reset(); document.getElementById('preview-container').style.display="none"; encodedImageBase64=""; } }
+        function toggleCatModal(show) { const modal = document.getElementById('catalog-modal'); if(show) { modal.classList.add('active'); handleCatTypeChange(); } else { modal.classList.remove('active'); document.getElementById('catalog-form').reset(); } }
 
         function openAddProductModal() {
-            document.getElementById('modal-title').innerText = "Yangi Mahsulot Kiritish";
-            document.getElementById('edit-product-id').value = "";
-            document.getElementById('btn-product-submit').innerText = "Omborga Joylash";
-            document.getElementById('img-upload-group').style.display = "block";
-            document.getElementById('p-file').required = true;
-            
-            populateModalSelects();
-            toggleModal(true);
+            document.getElementById('modal-title').innerText = "Yangi Mahsulot Kiritish"; document.getElementById('edit-product-id').value = ""; document.getElementById('btn-product-submit').innerText = "Omborga Joylash";
+            populateModalSelects(); toggleModal(true);
         }
 
         function populateModalSelects(selectedMain = '', selectedSub = '') {
-            const mainSelect = document.getElementById('p-main-category');
-            mainSelect.innerHTML = '';
-            categories.filter(c => c.id !== 'all').forEach(c => {
-                mainSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            });
+            const mainSelect = document.getElementById('p-main-category'); mainSelect.innerHTML = '';
+            categories.filter(c => c.id !== 'all').forEach(c => { mainSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
             if(selectedMain) mainSelect.value = selectedMain;
             handleModalMainCatChange(selectedSub);
         }
 
         function handleModalMainCatChange(selectedSub = '') {
             const mainId = document.getElementById('p-main-category').value;
-            const subSelect = document.getElementById('p-sub-category');
-            subSelect.innerHTML = '';
-            
+            const subSelect = document.getElementById('p-sub-category'); subSelect.innerHTML = '';
             const filtered = subCategories.filter(s => s.parentId === mainId);
             if(filtered.length > 0) {
-                filtered.forEach(s => {
-                    subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
-                });
+                filtered.forEach(s => { subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`; });
                 if(selectedSub) subSelect.value = selectedSub;
-            } else {
-                subSelect.innerHTML = `<option value="Umumiy">Umumiy (Ichki katalog yo'q)</option>`;
-            }
+            } else { subSelect.innerHTML = `<option value="Umumiy">Umumiy</option>`; }
         }
 
-        // MAHSULOTNI TAHRIRLASH MODALINI OChISh
         function openEditModal(id) {
-            const prod = products.find(p => p.id === id);
-            if(!prod) return;
-
-            document.getElementById('modal-title').innerText = "Mahsulotni Tahrirlash";
-            document.getElementById('edit-product-id').value = prod.id;
-            document.getElementById('p-name').value = prod.name;
-            document.getElementById('p-price').value = prod.price;
-            document.getElementById('p-stock').value = prod.stock;
-            
-            // Rasm majburiy emas tahrirlashda
-            document.getElementById('img-upload-group').style.display = "block";
-            document.getElementById('p-file').required = false;
-
-            encodedImageBase64 = prod.img;
-            document.getElementById('img-preview-src').src = prod.img;
-            document.getElementById('preview-container').style.display = "block";
-
-            document.getElementById('btn-product-submit').innerText = "O'zgarishlarni Saqlash";
-            
-            populateModalSelects(prod.category, prod.subCategory);
-            toggleModal(true);
+            const prod = products.find(p => p.id === id); if(!prod) return;
+            document.getElementById('modal-title').innerText = "Tahrirlash"; document.getElementById('edit-product-id').value = prod.id;
+            document.getElementById('p-name').value = prod.name; document.getElementById('p-price').value = prod.price; document.getElementById('p-stock').value = prod.stock;
+            encodedImageBase64 = prod.img; document.getElementById('img-preview-src').src = prod.img; document.getElementById('preview-container').style.display = "block";
+            document.getElementById('btn-product-submit').innerText = "Saqlash";
+            populateModalSelects(prod.category, prod.subCategory); toggleModal(true);
         }
 
         function previewImage(input) {
@@ -520,136 +556,76 @@
             }
         }
 
-        // MAHSULOT QO'SHISH YOKI TAHRIRLASHNI SAQLASH
         function handleProductSubmit(e) {
-            e.preventDefault();
-            const editId = document.getElementById('edit-product-id').value;
-            const now = new Date();
-
+            e.preventDefault(); const editId = document.getElementById('edit-product-id').value; const now = new Date();
             if(editId) {
-                // TAHRIRLASH REJIMI
-                products = products.map(p => {
-                    if(p.id == editId) {
-                        return {
-                            ...p,
-                            category: document.getElementById('p-main-category').value,
-                            subCategory: document.getElementById('p-sub-category').value,
-                            name: document.getElementById('p-name').value,
-                            img: encodedImageBase64,
-                            price: parseFloat(document.getElementById('p-price').value) || 0,
-                            stock: parseInt(document.getElementById('p-stock').value) || 0
-                        };
-                    }
-                    return p;
-                });
+                products = products.map(p => (p.id == editId) ? {...p, category: document.getElementById('p-main-category').value, subCategory: document.getElementById('p-sub-category').value, name: document.getElementById('p-name').value, img: encodedImageBase64, price: parseFloat(document.getElementById('p-price').value) || 0, stock: parseInt(document.getElementById('p-stock').value) || 0} : p);
             } else {
-                // YANGI QO'SHISH REJIMI
                 if(!encodedImageBase64) return;
-                const newProd = {
-                    id: Date.now(),
-                    category: document.getElementById('p-main-category').value,
-                    subCategory: document.getElementById('p-sub-category').value,
-                    name: document.getElementById('p-name').value,
-                    img: encodedImageBase64,
-                    price: parseFloat(document.getElementById('p-price').value) || 0,
-                    stock: parseInt(document.getElementById('p-stock').value) || 0,
-                    date: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}`
-                };
-                products.push(newProd);
+                products.push({ id: Date.now(), category: document.getElementById('p-main-category').value, subCategory: document.getElementById('p-sub-category').value, name: document.getElementById('p-name').value, img: encodedImageBase64, price: parseFloat(document.getElementById('p-price').value) || 0, stock: parseInt(document.getElementById('p-stock').value) || 0, date: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}` });
             }
-
-            localStorage.setItem('imarket_premium_products', JSON.stringify(products));
-            toggleModal(false);
-            filterAndRender();
+            localStorage.setItem('imarket_premium_products', JSON.stringify(products)); toggleModal(false); filterAndRender(); checkLowStock();
         }
 
-        // KATALOG YOKI SUB-KATALOG SAQLASH
-        function saveCatalog(e) {
-            e.preventDefault();
+        function handleCatTypeChange() {
             const type = document.getElementById('c-type').value;
-            const name = document.getElementById('c-name').value;
-            
+            document.getElementById('parent-cat-select-group').style.display = type === 'sub' ? 'block' : 'none';
+            document.getElementById('c-icon-group').style.display = type === 'main' ? 'block' : 'none';
+            if(type === 'sub') {
+                const select = document.getElementById('c-parent-id'); select.innerHTML = '';
+                categories.filter(c => c.id !== 'all').forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+            }
+        }
+
+        function saveCatalog(e) {
+            e.preventDefault(); const type = document.getElementById('c-type').value; const name = document.getElementById('c-name').value;
             if(type === 'main') {
-                const icon = document.getElementById('c-icon').value;
-                categories.push({ id: 'cat-' + Date.now(), name, icon, isMain: true });
+                categories.push({ id: 'cat-' + Date.now(), name, icon: document.getElementById('c-icon').value });
                 localStorage.setItem('imarket_main_cats', JSON.stringify(categories));
             } else {
-                const parentId = document.getElementById('c-parent-id').value;
-                subCategories.push({ id: 'sub-' + Date.now(), parentId, name });
+                subCategories.push({ id: 'sub-' + Date.now(), parentId: document.getElementById('c-parent-id').value, name });
                 localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
             }
-
-            toggleCatModal(false);
-            renderCategories();
+            toggleCatModal(false); renderCategories();
         }
 
-        function deleteProduct(id) {
-            if(confirm("Ushbu mahsulotni ombordan butunlay o'chirib tashlaysizmi?")) { 
-                products = products.filter(p => p.id !== id); 
-                localStorage.setItem('imarket_premium_products', JSON.stringify(products)); 
-                filterAndRender(); 
-            }
-        }
-
-        function deleteMainCatalog(id, e) {
-            e.stopPropagation();
-            if(confirm("Asosiy katalogni o'chirsangiz ichidagi sub-kataloglar ham o'chib ketadi. Davom etamizmi?")) {
-                categories = categories.filter(c => c.id !== id);
-                subCategories = subCategories.filter(s => s.parentId !== id);
-                localStorage.setItem('imarket_main_cats', JSON.stringify(categories));
-                localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
-                if(currentCategory === id) currentCategory = 'all';
-                renderCategories();
-                filterAndRender();
-            }
-        }
-
-        function deleteSubCatalog(id, e) {
-            e.stopPropagation();
-            if(confirm("Ushbu ichki katalogni o'chirib tashlamoqchimisiz?")) {
-                subCategories = subCategories.filter(s => s.id !== id);
-                localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
-                if(currentSubCategory === id) currentSubCategory = 'all';
-                renderSubCategories();
-                filterAndRender();
-            }
-        }
+        function deleteProduct(id) { if(confirm("Mahsulotni o'chirasizmi?")) { products = products.filter(p => p.id !== id); localStorage.setItem('imarket_premium_products', JSON.stringify(products)); filterAndRender(); checkLowStock(); } }
+        function deleteMainCatalog(id, e) { e.stopPropagation(); if(confirm("Katalogni o'chirmoqchimisiz?")) { categories = categories.filter(c => c.id !== id); subCategories = subCategories.filter(s => s.parentId !== id); localStorage.setItem('imarket_main_cats', JSON.stringify(categories)); localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories)); if(currentCategory === id) currentCategory = 'all'; renderCategories(); filterAndRender(); } }
+        function deleteSubCatalog(id, e) { e.stopPropagation(); if(confirm("Ichki katalogni o'chirmoqchimisiz?")) { subCategories = subCategories.filter(s => s.id !== id); localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories)); if(currentSubCategory === id) currentSubCategory = 'all'; renderSubCategories(); filterAndRender(); } }
 
         function filterAndRender() {
-            const container = document.getElementById('products-container'); 
-            container.innerHTML = '';
+            const container = document.getElementById('products-container'); container.innerHTML = '';
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
             const sortStyle = document.getElementById('price-sort').value;
 
-            let filtered = products.filter(p => {
-                const matchMain = (currentCategory === 'all' || p.category === currentCategory);
-                const matchSub = (currentSubCategory === 'all' || p.subCategory === currentSubCategory);
-                const matchSearch = p.name.toLowerCase().includes(searchQuery);
-                return matchMain && matchSub && matchSearch;
-            });
-
+            let filtered = products.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (currentSubCategory === 'all' || p.subCategory === currentSubCategory) && p.name.toLowerCase().includes(searchQuery));
             if (sortStyle === 'low-high') filtered.sort((a, b) => a.price - b.price);
             else if (sortStyle === 'high-low') filtered.sort((a, b) => b.price - a.price);
 
-            filtered.forEach((p, index) => {
+            filtered.forEach(p => {
                 const mainObj = categories.find(c => c.id === p.category) || { name: 'Katalog' };
-                const subObj = subCategories.find(s => s.id === p.subCategory) || { name: 'Umumiy' };
+                const isLow = p.stock <= 3 ? 'low-stock-border' : '';
+                const stockClass = p.stock <= 3 ? 'danger-stock' : '';
                 
                 container.innerHTML += `
-                    <div class="product-card" style="animation-delay: ${index * 0.04}s">
+                    <div class="product-card ${isLow}">
                         <div class="card-actions">
-                            <div class="action-icon edit" onclick="openEditModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></div>
-                            <div class="action-icon delete" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash-can"></i></div>
+                            <div class="action-icon sell" onclick="sellProduct(${p.id})" title="1 ta sotish"><i class="fa-solid fa-cart-shopping"></i></div>
+                            <div class="action-icon edit" onclick="openEditModal(${p.id})"><i class="fa-solid fa-pen"></i></div>
+                            <div class="action-icon delete" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></div>
                         </div>
-                        <div class="img-box"><img src="${p.img}"><div class="img-meta-panel"><div class="meta-stock">Zaxira: ${p.stock} ta</div><div class="meta-price">${Number(p.price).toLocaleString('ru-RU')} so'm</div></div></div>
-                        <div class="info-box"><div class="product-name">${p.name}</div><div class="meta-bottom"><span class="sub-tag">${mainObj.name} » ${subObj.name}</span><span class="date-tag"><i class="fa-regular fa-calendar"></i> ${p.date}</span></div></div>
+                        <div class="img-box"><img src="${p.img}"><div class="img-meta-panel"><div class="meta-stock ${stockClass}">Qoldiq: ${p.stock} ta</div><div class="meta-price">${Number(p.price).toLocaleString()} so'm</div></div></div>
+                        <div class="info-box"><div class="product-name">${p.name}</div><div class="meta-bottom"><span class="sub-tag">${mainObj.name}</span></div></div>
                     </div>`;
             });
 
             let totalStock = 0; let totalPriceSum = 0;
             products.forEach(p => { totalStock += p.stock; totalPriceSum += (p.price * p.stock); });
             document.getElementById('total-stock-count').innerText = totalStock + " ta";
-            document.getElementById('total-price-sum').innerText = totalPriceSum.toLocaleString('ru-RU') + " so'm";
+            document.getElementById('total-price-sum').innerText = totalPriceSum.toLocaleString() + " so'm";
+            
+            let todayCount = 0; for(let id in dailySales) { todayCount += dailySales[id]; }
+            document.getElementById('today-sales-count').innerText = todayCount + " ta";
         }
     </script>
 </body>
