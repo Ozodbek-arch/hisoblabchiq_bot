@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>iMarket Premium</title>
-    <!-- Google Fonts va FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -34,7 +33,7 @@
             padding-bottom: 80px; 
         }
 
-        /* Ilg'or Header */
+        /* Global Header */
         .app-header {
             background: var(--surface);
             padding: 16px;
@@ -115,7 +114,7 @@
             display: none;
         }
 
-        /* GRID TIZIMI (Oldingi Premium ko'rinish) */
+        /* GRID TIZIMI */
         .grid-layout {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -194,7 +193,7 @@
             font-weight: 500;
         }
 
-        /* KATALOG STRUKTURASI (Tuzatilgan premium dizayn) */
+        /* KATALOG STRUKTURASI */
         .cat-row-list {
             display: flex;
             flex-direction: column;
@@ -230,7 +229,7 @@
         }
         .btn-prime:active { transform: scale(0.98); }
 
-        /* SOTUV / KASSA BO'LIMI */
+        /* SOTUV BO'LIMI */
         .sell-list-item {
             background: var(--surface);
             padding: 12px;
@@ -244,7 +243,7 @@
         .sell-item-left { display: flex; align-items: center; gap: 10px; }
         .sell-item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
 
-        /* STATISTIKA VIZUALLARI */
+        /* STATISTIKA */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -260,7 +259,7 @@
         .stat-val { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
         .stat-lbl { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* PASTKI PROFESSIONAL NAVIGATSIYA PANEL */
+        /* PASTKI NAVBAR */
         .bottom-navbar {
             position: fixed;
             bottom: 0; left: 0; width: 100%;
@@ -287,7 +286,7 @@
         .nav-item.active { color: var(--primary); }
         .nav-item.active i { transform: translateY(-2px); }
 
-        /* MODAL (BLUR) OVERLAY */
+        /* MODAL OVERLAY */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.3);
@@ -320,10 +319,9 @@
 </head>
 <body>
 
-    <!-- GLOBAL HEADER -->
     <header class="app-header">
         <div class="header-top">
-            <div class="logo">iMarket</div>
+            <div class="logo" onclick="clearCatalogFilter()">iMarket</div>
             <div id="filter-badge" style="font-size:0.75rem; font-weight:700; color:var(--primary); background:var(--primary-light); padding:4px 10px; border-radius:20px;">Barchasi</div>
         </div>
         <div class="search-container">
@@ -332,7 +330,6 @@
         </div>
     </header>
 
-    <!-- 1-SAHIFA: BOSH SAHIFA (OMBOR) -->
     <div id="page-home" class="page active">
         <div class="page-title">
             <span>Ombor Qoldig'i</span>
@@ -342,7 +339,6 @@
         <div class="grid-layout" id="home-products-grid"></div>
     </div>
 
-    <!-- 2-SAHIFA: KATALOGLAR -->
     <div id="page-catalog" class="page">
         <div class="page-title">
             <span>Kataloglar</span>
@@ -351,13 +347,11 @@
         <div class="cat-row-list" id="catalog-page-list"></div>
     </div>
 
-    <!-- 3-SAHIFA: SOTUV BO'LIMI (KASSA) -->
     <div id="page-sales" class="page">
         <div class="page-title">Tezkor Sotuv (Kassa)</div>
         <div id="sales-page-list"></div>
     </div>
 
-    <!-- 4-SAHIFA: STATISTIKA -->
     <div id="page-stats" class="page">
         <div class="page-title">Hisobotlar paneli</div>
         <div class="stats-grid">
@@ -374,7 +368,6 @@
         <button class="btn-block" style="background:var(--danger); margin-top:8px;" onclick="resetKassa()"><i class="fa-solid fa-trash-can"></i> Kassani tozalash (0 qilish)</button>
     </div>
 
-    <!-- 5-SAHIFA: SOZLAMALAR / BACKUP -->
     <div id="page-settings" class="page">
         <div class="page-title">Tizim Sozlamalari</div>
         <div style="background:var(--surface); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border);">
@@ -383,7 +376,6 @@
         </div>
     </div>
 
-    <!-- PASTKI NAVIGATSIYA PANEL -->
     <nav class="bottom-navbar">
         <div class="nav-item active" onclick="switchPage('page-home', this)"><i class="fa-solid fa-warehouse"></i>Ombor</div>
         <div class="nav-item" onclick="switchPage('page-catalog', this)"><i class="fa-solid fa-folder"></i>Katalog</div>
@@ -392,7 +384,6 @@
         <div class="nav-item" onclick="switchPage('page-settings', this)"><i class="fa-solid fa-sliders"></i>Sozlamalar</div>
     </nav>
 
-    <!-- MODAL: KATALOG QO'SHISH -->
     <div class="modal-overlay" id="modal-add-cat">
         <div class="modal-box">
             <div class="modal-top">
@@ -407,7 +398,6 @@
         </div>
     </div>
 
-    <!-- MODAL: TOVAR QO'SHISH / TAHRIRLASH -->
     <div class="modal-overlay" id="modal-add-product">
         <div class="modal-box">
             <div class="modal-top">
@@ -432,10 +422,10 @@
         let imgBase64Cat = "";
         let imgBase64Prod = "";
 
-        // Standart boshlang'ich ma'lumotlar
+        // Boshlang'ich katalog ro'yxati
         let defaultCats = [
-            { id: 'all', name: 'Barchasi', img: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100' },
-            { id: 'cat-1', name: 'Telefonlar', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100' }
+            { id: 'cat-1', name: 'Telefonlar', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100' },
+            { id: 'cat-2', name: 'Aksessuarlar', img: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100' }
         ];
 
         let categories = JSON.parse(localStorage.getItem('im_cats')) || defaultCats;
@@ -461,6 +451,12 @@
             renderCurrentPage();
         }
 
+        function clearCatalogFilter() {
+            activeCategoryFilterId = 'all';
+            document.getElementById('filter-badge').innerText = 'Barchasi';
+            renderCurrentPage();
+        }
+
         function processImage(input, type) {
             const file = input.files[0];
             if (file) {
@@ -473,7 +469,7 @@
             }
         }
 
-        // KATALOG OPERATSIYALARI
+        // KATALOG LOGIKASI
         function saveNewCategory(e) {
             e.preventDefault();
             const name = document.getElementById('cat-in-name').value;
@@ -488,7 +484,7 @@
             renderCurrentPage();
         }
 
-        // TOVAR OPERATSIYALARI
+        // TOVAR QO'SHISH MODAL OYNASINI OCHISH (Tuzatilgan qismi)
         function openProductModal() {
             document.getElementById('prod-modal-title').innerText = "Yangi Tovar Qo'shish";
             document.getElementById('prod-edit-id').value = "";
@@ -499,9 +495,20 @@
 
             const select = document.getElementById('prod-in-cat');
             select.innerHTML = '';
-            categories.filter(c => c.id !== 'all').forEach(c => {
-                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            });
+            
+            // Kataloglarni to'liq yuklash (All filtridan tashqari hammasini chiqaradi)
+            const availableCats = categories.filter(c => c.id !== 'all');
+            
+            if(availableCats.length === 0) {
+                // Agar ro'yxat bo'sh bo'lsa, mavjud kataloglardan yaratadi
+                categories.forEach(c => {
+                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            } else {
+                availableCats.forEach(c => {
+                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
 
             openModal('modal-add-product');
         }
@@ -557,6 +564,10 @@
                 grid.innerHTML = '';
                 let filtered = products.filter(p => (activeCategoryFilterId === 'all' || p.category === activeCategoryFilterId) && p.name.toLowerCase().includes(query));
                 
+                if(filtered.length === 0) {
+                    grid.innerHTML = `<p style="grid-column: span 2; text-align:center; font-size:0.85rem; color:var(--text-muted); padding:40px 0;">Omborda ushbu ruknda tovar topilmadi.</p>`;
+                }
+
                 filtered.forEach(p => {
                     grid.innerHTML += `
                         <div class="card-item">
@@ -579,6 +590,17 @@
             if (currentActivePageId === 'page-catalog') {
                 const list = document.getElementById('catalog-page-list');
                 list.innerHTML = '';
+                
+                // "Barchasi" filtri doim boshida turishi uchun
+                list.innerHTML += `
+                    <div class="cat-row-card" onclick="filterByCatalog('all', 'Barchasi')">
+                        <div class="cat-row-left">
+                            <img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100" class="cat-row-img">
+                            <span class="cat-row-name">Barchasi (Ruknsiz)</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    </div>`;
+
                 categories.forEach(c => {
                     list.innerHTML += `
                         <div class="cat-row-card" onclick="filterByCatalog('${c.id}', '${c.name}')">
@@ -597,7 +619,7 @@
                 let filtered = products.filter(p => p.name.toLowerCase().includes(query));
                 
                 if(filtered.length === 0) {
-                    list.innerHTML = `<p style="text-align:center; font-size:0.85rem; color:var(--text-muted); padding:20px;">Sotish uchun tovarlar mavjud emas.</p>`;
+                    list.innerHTML = `<p style="text-align:center; font-size:0.85rem; color:var(--text-muted); padding:30px 10px;">Sotish uchun omborda tovar mavjud emas. Oldin tovar qo'shing.</p>`;
                 }
 
                 filtered.forEach(p => {
@@ -626,7 +648,6 @@
             activeCategoryFilterId = id;
             document.getElementById('filter-badge').innerText = name;
             
-            // Bosh sahifaga qaytarish
             const homeTab = document.querySelectorAll('.nav-item')[0];
             switchPage('page-home', homeTab);
         }
