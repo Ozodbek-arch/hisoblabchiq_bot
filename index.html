@@ -41,7 +41,7 @@
             overflow-x: hidden;
         }
 
-        /* 1. Kirish Animatsiyasi Overlay */
+        /* Kirish Premium Animatsiyasi */
         #welcome-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -75,9 +75,7 @@
             animation: fadeIn 1s forwards 0.8s;
         }
 
-        @keyframes premiumBlurIn {
-            to { opacity: 1; transform: scale(1); filter: blur(0); }
-        }
+        @keyframes premiumBlurIn { to { opacity: 1; transform: scale(1); filter: blur(0); } }
         @keyframes fadeIn { to { opacity: 1; } }
 
         /* Asosiy Layout */
@@ -96,7 +94,7 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
         .header-top {
@@ -112,7 +110,6 @@
             letter-spacing: -0.5px;
         }
 
-        /* Qidiruv tizimi */
         .search-container {
             position: relative;
             width: 100%;
@@ -143,21 +140,24 @@
             color: var(--text-muted);
         }
 
-        /* 2. Professional Katalog Menyusi */
+        /* YANGI: Rasmli/Ikonkali Premium Katalog Menyusi */
         .catalog-nav {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             overflow-x: auto;
-            padding-bottom: 5px;
+            padding-bottom: 10px;
             scrollbar-width: none;
         }
         .catalog-nav::-webkit-scrollbar { display: none; }
 
         .nav-item {
-            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 30px;
+            border-radius: 14px;
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
@@ -166,10 +166,21 @@
             color: var(--text-muted);
         }
 
-        .nav-item.active, .nav-item:hover {
+        .nav-item i {
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .nav-item.active {
             background: var(--accent);
             color: #000;
             border-color: var(--accent);
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(255,255,255,0.06);
+        }
+        
+        .nav-item.active i {
+            color: #000;
         }
 
         /* Ogohlantirishlar paneli */
@@ -194,7 +205,7 @@
         }
 
         .alert-card.warning { background: rgba(255, 159, 10, 0.06); border-color: rgba(255, 159, 10, 0.2); color: #ff9f0a; }
-        .alert-card.danger { background: rgba(ff, 69, 58, 0.06); border-color: rgba(255, 69, 58, 0.2); color: #ff453a; }
+        .alert-card.danger { background: rgba(255, 69, 58, 0.06); border-color: rgba(255, 69, 58, 0.2); color: #ff453a; }
 
         @keyframes slideIn {
             from { transform: translateY(-10px); opacity: 0; }
@@ -250,7 +261,6 @@
             transform: scale(1.05);
         }
 
-        /* Rasm tagidagi panel (Narx va Soni yaqin) */
         .img-meta-panel {
             position: absolute;
             bottom: 0; left: 0; width: 100%;
@@ -347,6 +357,8 @@
             width: 90%; max-width: 480px;
             transform: scale(0.95) translateY(10px);
             transition: var(--transition);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-overlay.active .modal-body { transform: scale(1) translateY(0); }
@@ -363,6 +375,7 @@
 
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        
         .form-group input, .form-group select {
             width: 100%; padding: 12px;
             background: var(--bg-input);
@@ -370,6 +383,46 @@
             border-radius: 10px; color: #fff; outline: none;
         }
         .form-group input:focus, .form-group select:focus { border-color: rgba(255,255,255,0.2); }
+
+        /* Galereya va Kamera yuklash zonasi */
+        .image-upload-zone {
+            border: 2px dashed var(--border);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            background: var(--bg-input);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .image-upload-zone:hover {
+            border-color: rgba(255,255,255,0.3);
+        }
+        .image-upload-zone i {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .image-upload-zone p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .image-upload-zone input[type="file"] {
+            display: none;
+        }
+        .preview-img-container {
+            margin-top: 12px;
+            display: none;
+            width: 100%;
+            height: 160px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+        .preview-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
         .btn-submit {
             width: 100%; padding: 14px;
@@ -383,7 +436,7 @@
 </head>
 <body>
 
-    <!-- 1. Kirish Premium Animatsiyasi -->
+    <!-- Kirish Premium Animatsiyasi -->
     <div id="welcome-overlay">
         <div class="welcome-logo">iMarket</div>
         <div class="welcome-sub">Premium Management Suite</div>
@@ -400,14 +453,14 @@
                 </div>
             </div>
             
-            <!-- 2. Katalog / Kategoriya Tizimi -->
+            <!-- YANGILANGAN: Chiroyli Rasmli Ikonkalar bilan Katalog Paneli -->
             <div class="catalog-nav">
-                <div class="nav-item active" onclick="switchCategory('all', this)">Barchasi</div>
-                <div class="nav-item" onclick="switchCategory('chexol', this)">Chexol</div>
-                <div class="nav-item" onclick="switchCategory('stiklo', this)">Stiklo</div>
-                <div class="nav-item" onclick="switchCategory('hid', this)">Hid chiqazuvchi</div>
-                <div class="nav-item" onclick="switchCategory('soat', this)">Soat</div>
-                <div class="nav-item" onclick="switchCategory('naushnik', this)">Naushnik</div>
+                <div class="nav-item active" onclick="switchCategory('all', this)"><i class="fa-solid fa-border-all"></i> Barchasi</div>
+                <div class="nav-item" onclick="switchCategory('chexol', this)"><i class="fa-solid fa-mobile-screen-button"></i> Chexol</div>
+                <div class="nav-item" onclick="switchCategory('stiklo', this)"><i class="fa-solid fa-shield-halved"></i> Stiklo</div>
+                <div class="nav-item" onclick="switchCategory('hid', this)"><i class="fa-solid fa-spray-can"></i> Hid chiqazuvchi</div>
+                <div class="nav-item" onclick="switchCategory('soat', this)"><i class="fa-solid fa-clock"></i> Soat</div>
+                <div class="nav-item" onclick="switchCategory('naushnik', this)"><i class="fa-solid fa-headphones"></i> Naushnik</div>
             </div>
         </div>
     </header>
@@ -445,10 +498,20 @@
                     <label>Mahsulot Nomi</label>
                     <input type="text" id="p-name" required>
                 </div>
+                
+                <!-- FAQAT GALEREYA VA KAMERA ORQALI RASM YUKLASH (URL YUQ) -->
                 <div class="form-group">
-                    <label>Rasm Linki (URL)</label>
-                    <input type="url" id="p-img" placeholder="https://images.unsplash.com/..." required>
+                    <label>Mahsulot Rasmi</label>
+                    <div class="image-upload-zone" onclick="document.getElementById('p-file').click()">
+                        <i class="fa-solid fa-images"></i>
+                        <p>Galereyadan rasm tanlang yoki kameraga oling</p>
+                        <input type="file" id="p-file" accept="image/*" onchange="previewImage(this)" required>
+                    </div>
+                    <div class="preview-img-container" id="preview-container">
+                        <img id="img-preview-src" src="" alt="Preview">
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label>Narxi</label>
                     <input type="text" id="p-price" placeholder="Masalan: 120,000 so'm" required>
@@ -468,6 +531,7 @@
 
     <script>
         let currentCategory = 'all';
+        let encodedImageBase64 = "";
 
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
@@ -479,11 +543,10 @@
             renderProducts();
         });
 
-        // LocalStorage bilan mukammal xotira tizimi
+        // Boshlang'ich misollar uchun tayyor rasmlar saqlangan xotira
         let products = JSON.parse(localStorage.getItem('imarket_premium_products')) || [
             { id: 1, category: 'chexol', name: "Silicone Case iPhone 15 Pro", img: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500", price: "150,000 so'm", stock: 3, sales: 15 },
-            { id: 2, category: 'soat', name: "Apple Watch Ultra Custom", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", price: "6,500,000 so'm", stock: 12, sales: 0 },
-            { id: 3, category: 'naushnik', name: "AirPods Max Matte Black", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500", price: "7,200,000 so'm", stock: 0, sales: 8 }
+            { id: 2, category: 'soat', name: "Apple Watch Ultra Custom", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", price: "6,500,000 so'm", stock: 12, sales: 0 }
         ];
 
         function saveToStorage() {
@@ -493,8 +556,14 @@
 
         function toggleModal(show) {
             const modal = document.getElementById('product-modal');
-            if(show) modal.classList.add('active');
-            else modal.classList.remove('active');
+            if(show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+                document.getElementById('product-form').reset();
+                document.getElementById('preview-container').style.display = "none";
+                encodedImageBase64 = "";
+            }
         }
 
         function switchCategory(cat, element) {
@@ -504,21 +573,41 @@
             renderProducts();
         }
 
+        // Galereyadan rasm tanlanganda ishlaydigan Base64 konverter
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    encodedImageBase64 = e.target.result;
+                    document.getElementById('img-preview-src').src = encodedImageBase64;
+                    document.getElementById('preview-container').style.display = "block";
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         function saveProduct(e) {
             e.preventDefault();
+            
+            if(!encodedImageBase64) {
+                alert("Iltimos, galereyadan mahsulot rasmini tanlang!");
+                return;
+            }
+
             const newProd = {
                 id: Date.now(),
                 category: document.getElementById('p-category').value,
                 name: document.getElementById('p-name').value,
-                img: document.getElementById('p-img').value,
+                img: encodedImageBase64,
                 price: document.getElementById('p-price').value,
                 stock: parseInt(document.getElementById('p-stock').value),
                 sales: parseInt(document.getElementById('p-sales').value) || 0
             };
+            
             products.push(newProd);
             saveToStorage();
             toggleModal(false);
-            document.getElementById('product-form').reset();
         }
 
         function renderProducts() {
@@ -528,7 +617,6 @@
             alertsZone.innerHTML = '';
 
             products.forEach(p => {
-                // Global ogohlantirishlar logikasi
                 if (p.stock > 0 && p.stock <= 4) {
                     alertsZone.innerHTML += `<div class="alert-card warning"><i class="fa-solid fa-triangle-exclamation"></i> <span><b>${p.name}</b> tugab boryapti! Omborda atigi ${p.stock} ta qoldi.</span></div>`;
                 }
@@ -536,7 +624,6 @@
                     alertsZone.innerHTML += `<div class="alert-card danger"><i class="fa-solid fa-arrow-trend-down"></i> <span><b>${p.name}</b> mahsuloti omborda turibdi lekin umuman sotilmayapti!</span></div>`;
                 }
 
-                // Kategoriya bo'yicha saralash filtri
                 if (currentCategory !== 'all' && p.category !== currentCategory) return;
 
                 const isOut = p.stock === 0;
@@ -571,11 +658,11 @@
             
             let visibleIndex = 0;
             products.forEach((p, index) => {
-                // Agar hozirgi kategoriya mos kelmasa yoki qidiruvga to'g'ri kelmasa yashirish
                 const matchCat = (currentCategory === 'all' || p.category === currentCategory);
                 const matchQuery = p.name.toLowerCase().includes(query);
 
                 if(matchCat && matchQuery) {
+                    cards[visibleIndex].style.with = "flex";
                     cards[visibleIndex].style.display = "flex";
                     visibleIndex++;
                 } else if (matchCat) {
