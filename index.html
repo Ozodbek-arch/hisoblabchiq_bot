@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iMarket Premium Control Panel</title>
-    <!-- Google Fonts va FontAwesome -->
+    <title>iMarket Premium Control Panel Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -18,15 +17,17 @@
             --accent: #0071e3;
             --border: rgba(0, 0, 0, 0.06);
             --danger: #ff3b30;
+            --warning: #ff9500;
+            --success: #34c759;
             --font-title: 'Space Grotesk', sans-serif;
             --font-body: 'Plus Jakarta Sans', sans-serif;
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
-        body { background-color: var(--bg-main); color: var(--text-main); overflow-x: hidden; padding-bottom: 100px; }
+        body { background-color: var(--bg-main); color: var(--text-main); overflow-x: hidden; padding-bottom: 110px; }
 
-        /* 1. NEON ANIMATSIYALI SPLASH SCREEN */
+        /* NEON ANIMATSIYALI SPLASH SCREEN */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000000; display: flex; flex-direction: column;
@@ -35,7 +36,7 @@
         }
         .splash-logo {
             font-family: var(--font-title); font-size: 3.8rem; font-weight: 700;
-            color: #fff; letter-spacing: -1.5px; text-shadow: 0 0 25px rgba(255,255,255,0.5);
+            color: #fff; letter-spacing: -1px; text-shadow: 0 0 25px rgba(255,255,255,0.5);
             opacity: 0; transform: scale(0.7); animation: neonPulse 0.8s 0.2s forwards ease-out;
         }
         .splash-welcome {
@@ -51,10 +52,9 @@
             border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
         }
 
-        .header-wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        .header-wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         
-        /* BRAND LOGO DESIGN */
         .brand-logo { font-family: var(--font-title); font-size: 1.9rem; font-weight: 700; color: #000; letter-spacing: -1px; display: flex; align-items: center; gap: 6px; }
         .brand-logo span { color: var(--accent); }
         .brand-logo i { font-size: 1.4rem; animation: rotateLogo 4s infinite linear; }
@@ -74,23 +74,27 @@
 
         .sort-select { padding: 12px 15px; background: var(--bg-input); border: none; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
 
-        /* DINAMIK KATALOGLAR */
-        .catalog-container-wrapper { display: flex; align-items: center; gap: 10px; }
-        .catalog-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-grow: 1; }
-        .catalog-nav::-webkit-scrollbar { display: none; }
+        /* DINAMIK ASOSIY KATALOGLAR VA ICHKI KATALOGLAR */
+        .catalog-nav, .sub-catalog-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .catalog-nav::-webkit-scrollbar, .sub-catalog-nav::-webkit-scrollbar { display: none; }
         
         .nav-item {
             padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
             font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: var(--transition); color: #515154;
-            display: flex; align-items: center; gap: 8px; position: relative;
+            display: flex; align-items: center; gap: 8px;
         }
         .nav-item.active { background: #000; color: #fff; border-color: #000; }
         
-        .delete-cat-btn { font-size: 0.75rem; margin-left: 5px; color: var(--text-muted); display: none; }
-        .nav-item:hover .delete-cat-btn { display: inline-block; color: var(--danger); }
+        .sub-catalog-nav { border-top: 1px solid var(--border); padding-top: 8px; display: none; }
+        .sub-item {
+            padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            font-size: 0.8rem; font-weight: 500; cursor: pointer; color: #515154; white-space: nowrap; transition: var(--transition);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sub-item.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        .btn-manage-cats { padding: 10px; background: #e8e8ed; border-radius: 12px; cursor: pointer; transition: var(--transition); border: none; font-size: 0.9rem; }
-        .btn-manage-cats:hover { background: #000; color: #fff; }
+        .delete-cat-btn { font-size: 0.7rem; color: var(--text-muted); transition: 0.2s; }
+        .delete-cat-btn:hover { color: var(--danger); }
 
         /* Grid & Cards */
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
@@ -105,12 +109,15 @@
         @keyframes cardAppear { to { opacity: 1; transform: translateY(0); } }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
 
-        .delete-btn {
-            position: absolute; top: 12px; right: 12px; width: 32px; height: 32px;
-            background: rgba(255, 255, 255, 0.9); border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            color: #1d1d1f; cursor: pointer; z-index: 5; transition: var(--transition); border: 1px solid var(--border);
+        /* CARD ACTION TUGMALARI */
+        .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; z-index: 5; }
+        .action-icon {
+            width: 32px; height: 32px; background: rgba(255, 255, 255, 0.95); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; color: #1d1d1f;
+            cursor: pointer; transition: var(--transition); border: 1px solid var(--border); font-size: 0.85rem;
         }
-        .delete-btn:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .action-icon.edit:hover { background: var(--warning); color: #fff; border-color: var(--warning); }
+        .action-icon.delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
         .img-box { position: relative; width: 100%; padding-top: 100%; background: #f5f5f7; }
         .img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -125,11 +132,11 @@
 
         .info-box { padding: 12px; background: #fff; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
         .product-name { font-size: 0.95rem; font-weight: 600; line-height: 1.3; }
-        .meta-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .sub-tag { font-size: 0.7rem; font-weight: 600; color: var(--accent); background: rgba(0,113,227,0.06); padding: 2px 6px; border-radius: 4px; }
+        .meta-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+        .sub-tag { font-size: 0.65rem; font-weight: 600; color: var(--accent); background: rgba(0,113,227,0.06); padding: 2px 6px; border-radius: 4px; }
         .date-tag { font-size: 0.7rem; color: var(--text-muted); }
 
-        /* ACHCHYOT PANELi */
+        /* ACHCHYOT BAR */
         .report-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: #121214; color: #fff; border-top: 1px solid rgba(255,255,255,0.08);
@@ -142,7 +149,7 @@
         .report-val { font-family: var(--font-title); font-size: 1.05rem; font-weight: 600; color: #ffffff; }
         .report-val.green { color: #30d158; }
 
-        /* Floating Buttons */
+        /* FLOATING TUGMALAR GURUHI */
         .action-buttons { position: fixed; bottom: 75px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
         .fab {
             width: 50px; height: 50px; color: #fff; border-radius: 50%; display: flex;
@@ -153,7 +160,7 @@
         .fab.add-catalog { background: #34c759; }
         .fab:hover { transform: scale(1.08); }
 
-        /* Modal */
+        /* Modallar uchun umumiy overlay */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex;
@@ -177,7 +184,6 @@
 </head>
 <body>
 
-    <!-- iMARKET ANIMATSIYASI -->
     <div id="splash-screen">
         <div class="brand-logo splash-logo" style="color:white;"><i class="fa-solid fa-circle-notch"></i> iMarket<span>.</span></div>
         <div class="splash-welcome">iMarket Premium Tizimiga Xush Kelibsiz</div>
@@ -205,12 +211,9 @@
                 </select>
             </div>
             
-            <!-- DINAMIK KATALOGLAR NAViGATSIYASI -->
-            <div class="catalog-container-wrapper">
-                <div class="catalog-nav" id="dynamic-categories-nav">
-                    <!-- JavaScript orqali to'ladi -->
-                </div>
-            </div>
+            <div class="catalog-nav" id="main-categories-nav"></div>
+            
+            <div class="sub-catalog-nav" id="sub-categories-nav"></div>
         </div>
     </header>
 
@@ -218,7 +221,6 @@
         <div class="products-grid" id="products-container"></div>
     </main>
 
-    <!-- ACHCHYOT PANELi -->
     <div class="report-bar">
         <div class="report-wrap">
             <div class="report-stats">
@@ -235,97 +237,114 @@
         </div>
     </div>
 
-    <!-- O'NG CHETDAGI FLOATING TUGMALAR -->
     <div class="action-buttons">
-        <div class="fab add-catalog" onclick="toggleCatModal(true)" title="Katalog qo'shish"><i class="fa-solid fa-folder-plus"></i></div>
-        <div class="fab add-product" onclick="toggleModal(true)" title="Mahsulot qo'shish"><i class="fa-solid fa-plus"></i></div>
+        <div class="fab add-catalog" onclick="toggleCatModal(true)" title="Katalog yaratish"><i class="fa-solid fa-folder-plus"></i></div>
+        <div class="fab add-product" onclick="openAddProductModal()" title="Mahsulot qo'shish"><i class="fa-solid fa-plus"></i></div>
     </div>
 
-    <!-- MAHSULOT QO'SHISH MODALI -->
     <div class="modal-overlay" id="product-modal">
         <div class="modal-body">
             <div class="modal-head">
-                <h3 style="font-size: 1.1rem;">Yangi Mahsulot Kiritish</h3>
+                <h3 id="modal-title" style="font-size: 1.1rem;">Yangi Mahsulot Kiritish</h3>
                 <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleModal(false)"></i>
             </div>
-            <form id="product-form" onsubmit="saveProduct(event)">
+            <form id="product-form" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="edit-product-id">
                 <div class="form-group">
-                    <label>Katalog (Kategoriya)</label>
-                    <select id="p-category" required>
-                        <!-- Dinamik to'ladi -->
-                    </select>
+                    <label>Asosiy Katalog</label>
+                    <select id="p-main-category" onchange="handleModalMainCatChange()" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Ichki Katalog (Sub-Katalog)</label>
+                    <select id="p-sub-category" required></select>
                 </div>
                 <div class="form-group">
                     <label>Mahsulot Nomi</label>
-                    <input type="text" id="p-name" placeholder="Masalan: iPhone 15 Pro Max Silk Chexol" required>
+                    <input type="text" id="p-name" placeholder="Masalan: iPhone 15 Pro Max Silk" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="img-upload-group">
                     <label>Rasmi</label>
                     <div class="image-upload-zone" onclick="document.getElementById('p-file').click()">
-                        <i class="fa-solid fa-camera" style="font-size: 1.5rem; color: #86868b; margin-bottom:5px;"></i>
-                        <p style="font-size:0.75rem; color:#86868b;">Yuklash uchun bosing</p>
-                        <input type="file" id="p-file" accept="image/*" onchange="previewImage(this)" required>
+                        <i class="fa-solid fa-camera" style="margin-bottom:5px;"></i>
+                        <p>Yuklash uchun bosing</p>
+                        <input type="file" id="p-file" accept="image/*" onchange="previewImage(this)">
                     </div>
-                    <div class="preview-img-container" id="preview-container"><img id="img-preview-src" src=""></div>
                 </div>
+                <div class="preview-img-container" id="preview-container"><img id="img-preview-src" src=""></div>
                 <div class="form-group">
                     <label>Sotuv Narxi (so'm)</label>
-                    <input type="number" id="p-price" placeholder="Masalan: 75000" required>
+                    <input type="number" id="p-price" placeholder="75000" required>
                 </div>
                 <div class="form-group">
                     <label>Ombordagi Soni</label>
-                    <input type="number" id="p-stock" min="0" placeholder="Masalan: 50" required>
+                    <input type="number" id="p-stock" min="0" placeholder="50" required>
                 </div>
-                <button type="submit" class="btn-submit">Omborga Joylash</button>
+                <button type="submit" id="btn-product-submit" class="btn-submit">Omborga Joylash</button>
             </form>
         </div>
     </div>
 
-    <!-- KATALOG QO'SHISH MODALI -->
     <div class="modal-overlay" id="catalog-modal">
         <div class="modal-body">
             <div class="modal-head">
-                <h3 style="font-size: 1.1rem;">Yangi Katalog Yaratish</h3>
+                <h3 style="font-size: 1.1rem;">Katalog Konfiguratsiyasi</h3>
                 <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleCatModal(false)"></i>
             </div>
             <form id="catalog-form" onsubmit="saveCatalog(event)">
                 <div class="form-group">
-                    <label>Katalog Nomi</label>
-                    <input type="text" id="c-name" placeholder="Masalan: iPhone Chexol, Samsung Stiklo" required>
-                </div>
-                <div class="form-group">
-                    <label>Ikonka (FontAwesome yoki ixtiyoriy belgi)</label>
-                    <select id="c-icon">
-                        <option value="fa-mobile-screen-button">📱 Telefon</option>
-                        <option value="fa-shield-halved">🛡️ Himoya / Stiklo</option>
-                        <option value="fa-headphones">🎧 Audio / Naushnik</option>
-                        <option value="fa-clock">⌚ Smart Soat</option>
-                        <option value="fa-plug">🔌 Quvvatlagich / Zaryadnik</option>
-                        <option value="fa-bolt">⚡ Kabel</option>
-                        <option value="fa-spray-can">💨 Hid Chiqaruvchi</option>
-                        <option value="fa-bag-shopping">👜 Sumka / Barsetka</option>
-                        <option value="fa-gamepad">🎮 O'yinchoq</option>
+                    <label>Turi</label>
+                    <select id="c-type" onchange="handleCatTypeChange()">
+                        <option value="main">Asosiy Katalog Yaratish</option>
+                        <option value="sub">Katalog Ichiga Ichki Katalog Qo'shish</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-submit" style="background: #34c759;">Katalogni Faollashtirish</button>
+                <div class="form-group id-parent-group" id="parent-cat-select-group" style="display:none;">
+                    <label>Qaysi Asosiy Katalog Ichiga Qo'shilsin?</label>
+                    <select id="c-parent-id"></select>
+                </div>
+                <div class="form-group">
+                    <label>Katalog Nomi</label>
+                    <input type="text" id="c-name" placeholder="Masalan: Chexollar, iPhone, Samsung" required>
+                </div>
+                <div class="form-group" id="c-icon-group">
+                    <label>Ikonka</label>
+                    <select id="c-icon">
+                        <option value="fa-mobile-screen-button">📱 Telefon</option>
+                        <option value="fa-shield-halved">🛡️ Stiklo / Himoya</option>
+                        <option value="fa-headphones">🎧 Audio / Naushnik</option>
+                        <option value="fa-clock">⌚ Smart Soat</option>
+                        <option value="fa-plug">🔌 Zaryadnik</option>
+                        <option value="fa-bolt">⚡ Kabel</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" style="background: #34c759;">Saqlash</button>
             </form>
         </div>
     </div>
 
     <script>
         let currentCategory = 'all';
+        let currentSubCategory = 'all';
         let encodedImageBase64 = "";
 
-        // BOSHLANG'ICH SIZ SO'RAGAN BRENDLAR VA KATALOGLAR
+        // BOSHLANG'ICH ASOSIY KATALOGLAR
         let defaultCategories = [
-            { id: 'all', name: 'Barchasi', icon: 'fa-border-all' },
-            { id: 'iphone-chexol', name: 'iPhone Chexollar', icon: 'fa-mobile-screen-button' },
-            { id: 'samsung-chexol', name: 'Samsung Chexollar', icon: 'fa-mobile-screen-button' },
-            { id: 'xiaomi-chexol', name: 'Xiaomi Chexollar', icon: 'fa-mobile-screen-button' },
-            { id: 'stiklo', name: 'Stiklolar', icon: 'fa-shield-halved' }
+            { id: 'all', name: 'Barchasi', icon: 'fa-border-all', isMain: true },
+            { id: 'cat-chexol', name: 'Chexollar', icon: 'fa-mobile-screen-button', isMain: true },
+            { id: 'cat-stiklo', name: 'Stiklolar', icon: 'fa-shield-halved', isMain: true }
         ];
 
-        let categories = JSON.parse(localStorage.getItem('imarket_categories')) || defaultCategories;
+        // BOSHLANG'ICH ICHKIDAGI KATALOGLAR (SUB-KATALOGLAR)
+        let defaultSubCategories = [
+            { id: 'sub-iphone', parentId: 'cat-chexol', name: 'iPhone' },
+            { id: 'sub-samsung', parentId: 'cat-chexol', name: 'Samsung' },
+            { id: 'sub-xiaomi', parentId: 'cat-chexol', name: 'Xiaomi' },
+            { id: 'sub-9d', parentId: 'cat-stiklo', name: 'Premium 9D' },
+            { id: 'sub-anti', parentId: 'cat-stiklo', name: 'Antishpion' }
+        ];
+
+        let categories = JSON.parse(localStorage.getItem('imarket_main_cats')) || defaultCategories;
+        let subCategories = JSON.parse(localStorage.getItem('imarket_sub_cats')) || defaultSubCategories;
         let products = JSON.parse(localStorage.getItem('imarket_premium_products')) || [];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -346,36 +365,76 @@
             }, 1000);
         }
 
-        // KATALOGLARNI EKRAVGA CHIQARISH VA INPUTLARGA JOYLAShTIRISH
         function renderCategories() {
-            const nav = document.getElementById('dynamic-categories-nav');
-            const select = document.getElementById('p-category');
+            const mainNav = document.getElementById('main-categories-nav');
+            mainNav.innerHTML = '';
             
-            nav.innerHTML = '';
-            select.innerHTML = '';
-
             categories.forEach(cat => {
-                // Tepadagi menu uchun
                 const activeClass = cat.id === currentCategory ? 'active' : '';
-                const deleteBtnHtml = (cat.id !== 'all') ? `<i class="fa-solid fa-circle-xmark delete-cat-btn" onclick="deleteCatalog('${cat.id}', event)"></i>` : '';
-                
-                nav.innerHTML += `
-                    <div class="nav-item ${activeClass}" onclick="switchCategory('${cat.id}', this)">
-                        <i class="fa-solid ${cat.icon}"></i> ${cat.name} ${deleteBtnHtml}
-                    </div>`;
-
-                // Modal ichidagi select uchun (Barchasidan tashqari)
-                if(cat.id !== 'all') {
-                    select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-                }
+                const delBtn = (cat.id !== 'all') ? `<i class="fa-solid fa-trash delete-cat-btn" style="margin-left:6px;" onclick="deleteMainCatalog('${cat.id}', event)"></i>` : '';
+                mainNav.innerHTML += `<div class="nav-item ${activeClass}" onclick="switchMainCategory('${cat.id}')"><i class="fa-solid ${cat.icon}"></i> ${cat.name} ${delBtn}</div>`;
             });
+            renderSubCategories();
         }
 
-        function switchCategory(catId, element) {
-            currentCategory = catId;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        function renderSubCategories() {
+            const subNav = document.getElementById('sub-categories-nav');
+            
+            if (currentCategory === 'all') {
+                subNav.style.display = 'none';
+                return;
+            }
+
+            const filteredSubs = subCategories.filter(s => s.parentId === currentCategory);
+            
+            if(filteredSubs.length >= 0) {
+                subNav.style.display = 'flex';
+                const activeAll = currentSubCategory === 'all' ? 'active' : '';
+                let html = `<div class="sub-item ${activeAll}" onclick="switchSubCategory('all')">Barchasi</div>`;
+                
+                filteredSubs.forEach(sub => {
+                    const activeClass = sub.id === currentSubCategory ? 'active' : '';
+                    html += `
+                        <div class="sub-item ${activeClass}" onclick="switchSubCategory('${sub.id}')">
+                            ${sub.name} 
+                            <i class="fa-solid fa-xmark delete-cat-btn" onclick="deleteSubCatalog('${sub.id}', event)"></i>
+                        </div>`;
+                });
+                subNav.innerHTML = html;
+            }
+        }
+
+        function switchMainCategory(id) {
+            currentCategory = id;
+            currentSubCategory = 'all';
+            renderCategories();
             filterAndRender();
+        }
+
+        function switchSubCategory(id) {
+            currentSubCategory = id;
+            renderSubCategories();
+            filterAndRender();
+        }
+
+        function handleCatTypeChange() {
+            const type = document.getElementById('c-type').value;
+            const parentGroup = document.getElementById('parent-cat-select-group');
+            const iconGroup = document.getElementById('c-icon-group');
+            
+            if (type === 'sub') {
+                parentGroup.style.display = 'block';
+                iconGroup.style.display = 'none';
+                
+                const select = document.getElementById('c-parent-id');
+                select.innerHTML = '';
+                categories.filter(c => c.id !== 'all').forEach(c => {
+                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            } else {
+                parentGroup.style.display = 'none';
+                iconGroup.style.display = 'block';
+            }
         }
 
         function toggleModal(show) {
@@ -386,34 +445,70 @@
 
         function toggleCatModal(show) {
             const modal = document.getElementById('catalog-modal');
-            if(show) modal.classList.add('active');
+            if(show) { modal.classList.add('active'); handleCatTypeChange(); }
             else { modal.classList.remove('active'); document.getElementById('catalog-form').reset(); }
         }
 
-        // YANGI KATALOG QO'SHISH
-        function saveCatalog(e) {
-            e.preventDefault();
-            const name = document.getElementById('c-name').value;
-            const icon = document.getElementById('c-icon').value;
-            const id = 'cat-' + Date.now();
-
-            categories.push({ id, name, icon });
-            localStorage.setItem('imarket_categories', JSON.stringify(categories));
+        function openAddProductModal() {
+            document.getElementById('modal-title').innerText = "Yangi Mahsulot Kiritish";
+            document.getElementById('edit-product-id').value = "";
+            document.getElementById('btn-product-submit').innerText = "Omborga Joylash";
+            document.getElementById('img-upload-group').style.display = "block";
+            document.getElementById('p-file').required = true;
             
-            toggleCatModal(false);
-            renderCategories();
+            populateModalSelects();
+            toggleModal(true);
         }
 
-        // KATALOGNI O'CHIRISH
-        function deleteCatalog(catId, event) {
-            event.stopPropagation(); // Meno bosilib ketishini oldini oladi
-            if(confirm("Ushbu katalogni o'chirmoqchimisiz? Ichidagi tovarlar o'chmaydi, 'Barchasi' bo'limida qoladi.")) {
-                categories = categories.filter(c => c.id !== catId);
-                localStorage.setItem('imarket_categories', JSON.stringify(categories));
-                if(currentCategory === catId) currentCategory = 'all';
-                renderCategories();
-                filterAndRender();
+        function populateModalSelects(selectedMain = '', selectedSub = '') {
+            const mainSelect = document.getElementById('p-main-category');
+            mainSelect.innerHTML = '';
+            categories.filter(c => c.id !== 'all').forEach(c => {
+                mainSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+            if(selectedMain) mainSelect.value = selectedMain;
+            handleModalMainCatChange(selectedSub);
+        }
+
+        function handleModalMainCatChange(selectedSub = '') {
+            const mainId = document.getElementById('p-main-category').value;
+            const subSelect = document.getElementById('p-sub-category');
+            subSelect.innerHTML = '';
+            
+            const filtered = subCategories.filter(s => s.parentId === mainId);
+            if(filtered.length > 0) {
+                filtered.forEach(s => {
+                    subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                });
+                if(selectedSub) subSelect.value = selectedSub;
+            } else {
+                subSelect.innerHTML = `<option value="Umumiy">Umumiy (Ichki katalog yo'q)</option>`;
             }
+        }
+
+        // MAHSULOTNI TAHRIRLASH MODALINI OChISh
+        function openEditModal(id) {
+            const prod = products.find(p => p.id === id);
+            if(!prod) return;
+
+            document.getElementById('modal-title').innerText = "Mahsulotni Tahrirlash";
+            document.getElementById('edit-product-id').value = prod.id;
+            document.getElementById('p-name').value = prod.name;
+            document.getElementById('p-price').value = prod.price;
+            document.getElementById('p-stock').value = prod.stock;
+            
+            // Rasm majburiy emas tahrirlashda
+            document.getElementById('img-upload-group').style.display = "block";
+            document.getElementById('p-file').required = false;
+
+            encodedImageBase64 = prod.img;
+            document.getElementById('img-preview-src').src = prod.img;
+            document.getElementById('preview-container').style.display = "block";
+
+            document.getElementById('btn-product-submit').innerText = "O'zgarishlarni Saqlash";
+            
+            populateModalSelects(prod.category, prod.subCategory);
+            toggleModal(true);
         }
 
         function previewImage(input) {
@@ -425,53 +520,132 @@
             }
         }
 
-        function saveProduct(e) {
-            e.preventDefault(); if(!encodedImageBase64) return;
+        // MAHSULOT QO'SHISH YOKI TAHRIRLASHNI SAQLASH
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-product-id').value;
             const now = new Date();
-            const newProd = {
-                id: Date.now(),
-                category: document.getElementById('p-category').value,
-                name: document.getElementById('p-name').value,
-                img: encodedImageBase64,
-                price: parseFloat(document.getElementById('p-price').value) || 0,
-                stock: parseInt(document.getElementById('p-stock').value) || 0,
-                date: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}`
-            };
-            products.push(newProd);
+
+            if(editId) {
+                // TAHRIRLASH REJIMI
+                products = products.map(p => {
+                    if(p.id == editId) {
+                        return {
+                            ...p,
+                            category: document.getElementById('p-main-category').value,
+                            subCategory: document.getElementById('p-sub-category').value,
+                            name: document.getElementById('p-name').value,
+                            img: encodedImageBase64,
+                            price: parseFloat(document.getElementById('p-price').value) || 0,
+                            stock: parseInt(document.getElementById('p-stock').value) || 0
+                        };
+                    }
+                    return p;
+                });
+            } else {
+                // YANGI QO'SHISH REJIMI
+                if(!encodedImageBase64) return;
+                const newProd = {
+                    id: Date.now(),
+                    category: document.getElementById('p-main-category').value,
+                    subCategory: document.getElementById('p-sub-category').value,
+                    name: document.getElementById('p-name').value,
+                    img: encodedImageBase64,
+                    price: parseFloat(document.getElementById('p-price').value) || 0,
+                    stock: parseInt(document.getElementById('p-stock').value) || 0,
+                    date: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}`
+                };
+                products.push(newProd);
+            }
+
             localStorage.setItem('imarket_premium_products', JSON.stringify(products));
             toggleModal(false);
             filterAndRender();
         }
 
+        // KATALOG YOKI SUB-KATALOG SAQLASH
+        function saveCatalog(e) {
+            e.preventDefault();
+            const type = document.getElementById('c-type').value;
+            const name = document.getElementById('c-name').value;
+            
+            if(type === 'main') {
+                const icon = document.getElementById('c-icon').value;
+                categories.push({ id: 'cat-' + Date.now(), name, icon, isMain: true });
+                localStorage.setItem('imarket_main_cats', JSON.stringify(categories));
+            } else {
+                const parentId = document.getElementById('c-parent-id').value;
+                subCategories.push({ id: 'sub-' + Date.now(), parentId, name });
+                localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
+            }
+
+            toggleCatModal(false);
+            renderCategories();
+        }
+
         function deleteProduct(id) {
-            if(confirm("Mahsulotni o'chirasizmi?")) { products = products.filter(p => p.id !== id); localStorage.setItem('imarket_premium_products', JSON.stringify(products)); filterAndRender(); }
+            if(confirm("Ushbu mahsulotni ombordan butunlay o'chirib tashlaysizmi?")) { 
+                products = products.filter(p => p.id !== id); 
+                localStorage.setItem('imarket_premium_products', JSON.stringify(products)); 
+                filterAndRender(); 
+            }
+        }
+
+        function deleteMainCatalog(id, e) {
+            e.stopPropagation();
+            if(confirm("Asosiy katalogni o'chirsangiz ichidagi sub-kataloglar ham o'chib ketadi. Davom etamizmi?")) {
+                categories = categories.filter(c => c.id !== id);
+                subCategories = subCategories.filter(s => s.parentId !== id);
+                localStorage.setItem('imarket_main_cats', JSON.stringify(categories));
+                localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
+                if(currentCategory === id) currentCategory = 'all';
+                renderCategories();
+                filterAndRender();
+            }
+        }
+
+        function deleteSubCatalog(id, e) {
+            e.stopPropagation();
+            if(confirm("Ushbu ichki katalogni o'chirib tashlamoqchimisiz?")) {
+                subCategories = subCategories.filter(s => s.id !== id);
+                localStorage.setItem('imarket_sub_cats', JSON.stringify(subCategories));
+                if(currentSubCategory === id) currentSubCategory = 'all';
+                renderSubCategories();
+                filterAndRender();
+            }
         }
 
         function filterAndRender() {
-            const container = document.getElementById('products-container'); container.innerHTML = '';
+            const container = document.getElementById('products-container'); 
+            container.innerHTML = '';
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
             const sortStyle = document.getElementById('price-sort').value;
 
             let filtered = products.filter(p => {
-                const matchCat = (currentCategory === 'all' || p.category === currentCategory);
+                const matchMain = (currentCategory === 'all' || p.category === currentCategory);
+                const matchSub = (currentSubCategory === 'all' || p.subCategory === currentSubCategory);
                 const matchSearch = p.name.toLowerCase().includes(searchQuery);
-                return matchCat && matchSearch;
+                return matchMain && matchSub && matchSearch;
             });
 
             if (sortStyle === 'low-high') filtered.sort((a, b) => a.price - b.price);
             else if (sortStyle === 'high-low') filtered.sort((a, b) => b.price - a.price);
 
             filtered.forEach((p, index) => {
-                const catObj = categories.find(c => c.id === p.category) || { name: 'Katalogiz' };
+                const mainObj = categories.find(c => c.id === p.category) || { name: 'Katalog' };
+                const subObj = subCategories.find(s => s.id === p.subCategory) || { name: 'Umumiy' };
+                
                 container.innerHTML += `
                     <div class="product-card" style="animation-delay: ${index * 0.04}s">
-                        <div class="delete-btn" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash-can"></i></div>
+                        <div class="card-actions">
+                            <div class="action-icon edit" onclick="openEditModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></div>
+                            <div class="action-icon delete" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash-can"></i></div>
+                        </div>
                         <div class="img-box"><img src="${p.img}"><div class="img-meta-panel"><div class="meta-stock">Zaxira: ${p.stock} ta</div><div class="meta-price">${Number(p.price).toLocaleString('ru-RU')} so'm</div></div></div>
-                        <div class="info-box"><div class="product-name">${p.name}</div><div class="meta-bottom"><span class="sub-tag">${catObj.name}</span><span class="date-tag"><i class="fa-regular fa-calendar"></i> ${p.date}</span></div></div>
+                        <div class="info-box"><div class="product-name">${p.name}</div><div class="meta-bottom"><span class="sub-tag">${mainObj.name} » ${subObj.name}</span><span class="date-tag"><i class="fa-regular fa-calendar"></i> ${p.date}</span></div></div>
                     </div>`;
             });
 
-            // HISOBOTLARNI YANGILASH
             let totalStock = 0; let totalPriceSum = 0;
             products.forEach(p => { totalStock += p.stock; totalPriceSum += (p.price * p.stock); });
             document.getElementById('total-stock-count').innerText = totalStock + " ta";
