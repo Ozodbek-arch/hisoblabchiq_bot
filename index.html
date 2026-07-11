@@ -55,6 +55,7 @@
             font-weight: 700;
             color: var(--primary);
             letter-spacing: -0.5px;
+            cursor: pointer;
         }
         
         .search-container {
@@ -83,7 +84,7 @@
             color: var(--text-muted);
         }
 
-        /* Sahifalar (Pages) */
+        /* Sahifalar */
         .page {
             display: none;
             padding: 16px;
@@ -101,7 +102,7 @@
             align-items: center;
         }
 
-        /* Qisqa Ogohlantirish */
+        /* Ogohlantirish */
         .alert-box {
             background: #fef2f2;
             border: 1px solid #fee2e2;
@@ -191,6 +192,7 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             font-weight: 500;
+            margin-bottom: 8px;
         }
 
         /* KATALOG STRUKTURASI */
@@ -207,13 +209,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            cursor: pointer;
         }
-        .cat-row-left { display: flex; align-items: center; gap: 12px; }
+        .cat-row-left { display: flex; align-items: center; gap: 12px; cursor: pointer; flex-grow: 1; }
         .cat-row-img { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; }
         .cat-row-name { font-weight: 600; font-size: 0.95rem; }
+        .cat-row-actions { display: flex; gap: 8px; align-items: center; }
         
-        /* Chiroyli Tugmalar */
+        /* Tugmalar */
         .btn-prime {
             background: var(--primary);
             color: #fff;
@@ -342,7 +344,7 @@
     <div id="page-catalog" class="page">
         <div class="page-title">
             <span>Kataloglar</span>
-            <button class="btn-prime" onclick="openModal('modal-add-cat')"><i class="fa-solid fa-folder-plus"></i> Yangi Katalog</button>
+            <button class="btn-prime" onclick="openCatModal()"><i class="fa-solid fa-folder-plus"></i> Yangi Katalog</button>
         </div>
         <div class="cat-row-list" id="catalog-page-list"></div>
     </div>
@@ -387,12 +389,13 @@
     <div class="modal-overlay" id="modal-add-cat">
         <div class="modal-box">
             <div class="modal-top">
-                <h3>Yangi Katalog Yaratish</h3>
+                <h3 id="cat-modal-title">Yangi Katalog Yaratish</h3>
                 <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-add-cat')"></i>
             </div>
-            <form onsubmit="saveNewCategory(event)">
+            <form onsubmit="saveCategoryForm(event)">
+                <input type="hidden" id="cat-edit-id">
                 <div class="form-group"><label>Katalog Nomi</label><input type="text" id="cat-in-name" required></div>
-                <div class="form-group"><label>Rasm tanlash</label><input type="file" accept="image/*" onchange="processImage(this, 'cat')" required></div>
+                <div class="form-group"><label>Rasm tanlash (Ixtiyoriy)</label><input type="file" accept="image/*" onchange="processImage(this, 'cat')"></div>
                 <button type="submit" class="btn-block">Katalogni Saqlash</button>
             </form>
         </div>
@@ -406,7 +409,10 @@
             </div>
             <form onsubmit="saveProductForm(event)">
                 <input type="hidden" id="prod-edit-id">
-                <div class="form-group"><label>Katalog tanlang</label><select id="prod-in-cat" required></select></div>
+                <div class="form-group">
+                    <label>Katalog tanlang</label>
+                    <select id="prod-in-cat" required></select>
+                </div>
                 <div class="form-group"><label>Tovar Nomi</label><input type="text" id="prod-in-name" required></div>
                 <div class="form-group"><label>Tovar Rasmi</label><input type="file" accept="image/*" onchange="processImage(this, 'prod')"></div>
                 <div class="form-group"><label>Sotuv Narxi (UZS)</label><input type="number" id="prod-in-price" required></div>
@@ -422,10 +428,9 @@
         let imgBase64Cat = "";
         let imgBase64Prod = "";
 
-        // Boshlang'ich katalog ro'yxati
+        // Standart boshlang'ich ma'lumotlar
         let defaultCats = [
-            { id: 'cat-1', name: 'Telefonlar', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100' },
-            { id: 'cat-2', name: 'Aksessuarlar', img: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100' }
+            { id: 'cat-general', name: 'Umumiy tovarlar', img: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100' }
         ];
 
         let categories = JSON.parse(localStorage.getItem('im_cats')) || defaultCats;
@@ -469,22 +474,58 @@
             }
         }
 
-        // KATALOG LOGIKASI
-        function saveNewCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('cat-in-name').value;
-            if(!imgBase64Cat) return;
-
-            categories.push({ id: 'cat-' + Date.now(), name, img: imgBase64Cat });
-            localStorage.setItem('im_cats', JSON.stringify(categories));
-            
-            document.getElementById('cat-in-name').value = '';
+        /* KATALOG OPERATSIYALARI */
+        function openCatModal() {
+            document.getElementById('cat-modal-title').innerText = "Yangi Katalog Yaratish";
+            document.getElementById('cat-edit-id').value = "";
+            document.getElementById('cat-in-name').value = "";
             imgBase64Cat = "";
+            openModal('modal-add-cat');
+        }
+
+        function editCategory(id, e) {
+            e.stopPropagation(); // Card bosilib ketishini oldini oladi
+            const c = categories.find(cat => cat.id === id);
+            if(!c) return;
+            
+            document.getElementById('cat-modal-title').innerText = "Katalogni Tahrirlash";
+            document.getElementById('cat-edit-id').value = c.id;
+            document.getElementById('cat-in-name').value = c.name;
+            imgBase64Cat = c.img;
+            openModal('modal-add-cat');
+        }
+
+        function deleteCategory(id, e) {
+            e.stopPropagation();
+            if(confirm("Ushbu katalogni o'chirmoqchimisiz? Ichidagi tovarlar o'chmaydi, umumiyga o'tadi.")) {
+                categories = categories.filter(c => c.id !== id);
+                // O'chirilgan katalogdagi tovarlarni 'cat-general'ga o'tkazish
+                products = products.map(p => p.category === id ? { ...p, category: 'cat-general' } : p);
+                
+                localStorage.setItem('im_cats', JSON.stringify(categories));
+                localStorage.setItem('im_prods', JSON.stringify(products));
+                renderCurrentPage();
+            }
+        }
+
+        function saveCategoryForm(e) {
+            e.preventDefault();
+            const editId = document.getElementById('cat-edit-id').value;
+            const name = document.getElementById('cat-in-name').value;
+            const fallbackImg = "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100";
+
+            if(editId) {
+                categories = categories.map(c => c.id === editId ? { ...c, name, img: imgBase64Cat || c.img } : c);
+            } else {
+                categories.push({ id: 'cat-' + Date.now(), name, img: imgBase64Cat || fallbackImg });
+            }
+
+            localStorage.setItem('im_cats', JSON.stringify(categories));
             closeModal('modal-add-cat');
             renderCurrentPage();
         }
 
-        // TOVAR QO'SHISH MODAL OYNASINI OCHISH (Tuzatilgan qismi)
+        /* TOVAR OPERATSIYALARI */
         function openProductModal() {
             document.getElementById('prod-modal-title').innerText = "Yangi Tovar Qo'shish";
             document.getElementById('prod-edit-id').value = "";
@@ -496,19 +537,11 @@
             const select = document.getElementById('prod-in-cat');
             select.innerHTML = '';
             
-            // Kataloglarni to'liq yuklash (All filtridan tashqari hammasini chiqaradi)
-            const availableCats = categories.filter(c => c.id !== 'all');
-            
-            if(availableCats.length === 0) {
-                // Agar ro'yxat bo'sh bo'lsa, mavjud kataloglardan yaratadi
-                categories.forEach(c => {
-                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
-            } else {
-                availableCats.forEach(c => {
-                    select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
-            }
+            if(categories.length === 0) categories = [...defaultCats];
+
+            categories.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
 
             openModal('modal-add-product');
         }
@@ -555,7 +588,7 @@
             }
         }
 
-        // SAHIFALARNI RENDER QILISH
+        /* RENDER STRUKTURASI */
         function renderCurrentPage() {
             const query = document.getElementById('app-search').value.toLowerCase();
 
@@ -565,7 +598,7 @@
                 let filtered = products.filter(p => (activeCategoryFilterId === 'all' || p.category === activeCategoryFilterId) && p.name.toLowerCase().includes(query));
                 
                 if(filtered.length === 0) {
-                    grid.innerHTML = `<p style="grid-column: span 2; text-align:center; font-size:0.85rem; color:var(--text-muted); padding:40px 0;">Omborda ushbu ruknda tovar topilmadi.</p>`;
+                    grid.innerHTML = `<p style="grid-column: span 2; text-align:center; font-size:0.85rem; color:var(--text-muted); padding:40px 0;">Tovar topilmadi. "Tovar qo'shish" orqali yangi mahsulot kiriting.</p>`;
                 }
 
                 filtered.forEach(p => {
@@ -579,8 +612,11 @@
                             <div class="card-info">
                                 <div class="card-name">${p.name}</div>
                                 <div>
-                                    <div class="card-price">${p.price.toLocaleString()} UZS</div>
-                                    <div class="card-stock">Omborda: ${p.stock} ta</div>
+                                    <div class="card-stock">Qoldiq: ${p.stock} ta</div>
+                                    <div class="card-price" style="margin-bottom:8px;">${p.price.toLocaleString()} UZS</div>
+                                    <button class="btn-prime" style="width:100%; padding:8px; font-size:0.75rem; justify-content:center;" onclick="processSale(${p.id})" ${p.stock === 0 ? 'disabled style="background:#cbd5e1;"' : ''}>
+                                        <i class="fa-solid fa-cart-shopping"></i> Sotish
+                                    </button>
                                 </div>
                             </div>
                         </div>`;
@@ -591,24 +627,27 @@
                 const list = document.getElementById('catalog-page-list');
                 list.innerHTML = '';
                 
-                // "Barchasi" filtri doim boshida turishi uchun
+                // Doimiy global "Barchasi" filtri
                 list.innerHTML += `
-                    <div class="cat-row-card" onclick="filterByCatalog('all', 'Barchasi')">
+                    <div class="cat-row-card" style="cursor:pointer;" onclick="filterByCatalog('all', 'Barchasi')">
                         <div class="cat-row-left">
                             <img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100" class="cat-row-img">
-                            <span class="cat-row-name">Barchasi (Ruknsiz)</span>
+                            <span class="cat-row-name">Barchasi (Hamma tovarlar)</span>
                         </div>
-                        <i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                        <i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.8rem; margin-right:5px;"></i>
                     </div>`;
 
                 categories.forEach(c => {
                     list.innerHTML += `
-                        <div class="cat-row-card" onclick="filterByCatalog('${c.id}', '${c.name}')">
-                            <div class="cat-row-left">
+                        <div class="cat-row-card">
+                            <div class="cat-row-left" onclick="filterByCatalog('${c.id}', '${c.name}')">
                                 <img src="${c.img}" class="cat-row-img">
                                 <span class="cat-row-name">${c.name}</span>
                             </div>
-                            <i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                            <div class="cat-row-actions">
+                                <div class="btn-mini" onclick="editCategory('${c.id}', event)"><i class="fa-solid fa-pen"></i></div>
+                                <div class="btn-mini del" onclick="deleteCategory('${c.id}', event)"><i class="fa-solid fa-trash"></i></div>
+                            </div>
                         </div>`;
                 });
             }
@@ -619,7 +658,7 @@
                 let filtered = products.filter(p => p.name.toLowerCase().includes(query));
                 
                 if(filtered.length === 0) {
-                    list.innerHTML = `<p style="text-align:center; font-size:0.85rem; color:var(--text-muted); padding:30px 10px;">Sotish uchun omborda tovar mavjud emas. Oldin tovar qo'shing.</p>`;
+                    list.innerHTML = `<p style="text-align:center; font-size:0.85rem; color:var(--text-muted); padding:30px 10px;">Sotish uchun omborda mahsulot mavjud emas.</p>`;
                 }
 
                 filtered.forEach(p => {
@@ -647,17 +686,16 @@
         function filterByCatalog(id, name) {
             activeCategoryFilterId = id;
             document.getElementById('filter-badge').innerText = name;
-            
             const homeTab = document.querySelectorAll('.nav-item')[0];
             switchPage('page-home', homeTab);
         }
 
-        // SOTUV (KASSA) TIZIMI
+        /* SOTUV (KASSA) TIZIMI */
         function processSale(id) {
             const p = products.find(prod => prod.id === id);
             if(p && p.stock > 0) {
                 let inputPrice = prompt(`"${p.name}" sotuv narxi:\nAsl narxi: ${p.price.toLocaleString()} UZS.`, p.price);
-                if (inputPrice === null) return;
+                if (inputPrice === null) return; 
                 
                 let soldPrice = parseFloat(inputPrice);
                 if (isNaN(soldPrice) || soldPrice <= 0) { soldPrice = p.price; }
@@ -672,10 +710,12 @@
                 
                 renderCurrentPage();
                 checkLowStockNotice();
+            } else {
+                alert("Omborda ushbu tovar qolmagan!");
             }
         }
 
-        // STATISTIKA VA HISOBOTLAR
+        /* STATISTIKA VA HISOBOTLAR */
         function updateStatsPanel() {
             let totalStock = 0; let totalValue = 0;
             products.forEach(p => { totalStock += p.stock; totalValue += (p.price * p.stock); });
@@ -691,7 +731,7 @@
                     totalCash += salesData[id].revenue;
                 }
             }
-            if(!salesText) salesText = "Bugun hech narsa sotilmadi.\n";
+            if(!salesText) salesText = "Bugun sotuv bo'lmadi.\n";
 
             document.getElementById('st-total-qty').innerText = totalStock + " ta";
             document.getElementById('st-total-val').innerText = totalValue.toLocaleString() + " UZS";
@@ -714,7 +754,7 @@
         }
 
         function resetKassa() {
-            if(confirm("Bugungi kassa va sotuv statistikasini nollashtirmoqchimisiz? Tovar qoldiqlari o'zgarmaydi.")) {
+            if(confirm("Kassa va sotuv statistikasini nollashtirmoqchimisiz? Tovar qoldiqlari o'zgarmaydi.")) {
                 salesData = {};
                 localStorage.removeItem('im_sales');
                 renderCurrentPage();
