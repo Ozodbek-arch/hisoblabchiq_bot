@@ -4,203 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iMarket - Omborxona Web App</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .active-tab { background-color: #1f2937; color: white; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <!-- SIDEBAR (Chap menyu) -->
     <aside class="w-64 bg-[#111827] text-gray-400 flex flex-col justify-between p-4 z-10 shrink-0">
         <div>
-            <!-- Logo -->
             <div class="px-2 py-4 mb-6">
                 <h1 class="text-white text-3xl font-bold tracking-tight">iMarket</h1>
                 <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Omborxona Web App</p>
             </div>
-            
-            <!-- Menyu elementlari -->
             <nav class="space-y-1">
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-gray-800 text-white">
-                    <i class="fa-solid fa-chart-pie w-5 text-left"></i>
-                    <span>Asosiy panel</span>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors active-tab">
+                    <i class="fa-solid fa-chart-pie w-5 text-left"></i> <span>Asosiy panel</span>
                 </button>
                 <button onclick="switchTab('products')" id="btn-products" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-box w-5 text-left"></i>
-                    <span>Mahsulotlar</span>
+                    <i class="fa-solid fa-box w-5 text-left"></i> <span>Mahsulotlar</span>
                 </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-arrow-down w-5 text-left"></i>
-                    <span>Kirim</span>
+                <button onclick="switchTab('kirim')" id="btn-kirim" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
+                    <i class="fa-solid fa-arrow-down w-5 text-left"></i> <span>Kirim qo'shish</span>
                 </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-arrow-up w-5 text-left"></i>
-                    <span>Chiqim</span>
-                </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-warehouse w-5 text-left"></i>
-                    <span>Omborlar</span>
-                </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-chart-line w-5 text-left"></i>
-                    <span>Hisobotlar</span>
-                </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-tags w-5 text-left"></i>
-                    <span>Kategoriya</span>
-                </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-truck-field w-5 text-left"></i>
-                    <span>Yetkazib beruvchilar</span>
-                </button>
-                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-users w-5 text-left"></i>
-                    <span>Foydalanuvchilar</span>
+                <button onclick="switchTab('chiqim')" id="btn-chiqim" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
+                    <i class="fa-solid fa-arrow-up w-5 text-left"></i> <span>Chiqim qo'shish</span>
                 </button>
             </nav>
         </div>
-        
-        <!-- Sozlamalar (Pastki qism) -->
         <div>
-            <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                <i class="fa-solid fa-gear w-5 text-left"></i>
-                <span>Sozlamalar</span>
-            </button>
+            <p class="text-xs text-gray-600 text-center mb-2">v1.0.0 Pro</p>
         </div>
     </aside>
 
-    <!-- ASOSIY KONTENT QISMI -->
     <div class="flex-1 flex flex-col h-screen overflow-y-auto">
-        
-        <!-- YUQORI NAVIGATSIYA (Header) -->
         <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shrink-0">
-            <!-- Qidiruv tizimi -->
             <div class="relative w-80">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-sm"></i>
                 </span>
-                <input type="text" placeholder="Qidirish..." class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                <input type="text" id="globalSearch" oninput="searchProducts()" placeholder="Mahsulotlardan qidirish..." class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
             </div>
-            
-            <!-- Profil qismi -->
-            <div class="flex items-center space-x-3 cursor-pointer">
-                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
-                    O
-                </div>
-                <div class="text-sm">
-                    <p class="font-semibold text-gray-800 leading-none">Ozodbek</p>
-                    <p class="text-xs text-gray-400 mt-0.5">Adminstrator</p>
-                </div>
-                <i class="fa-solid fa-chevron-down text-xs text-gray-400 pl-1"></i>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">O</div>
+                <div class="text-sm"><p class="font-semibold text-gray-800 leading-none">Ozodbek</p><p class="text-xs text-gray-400 mt-0.5">Administrator</p></div>
             </div>
         </header>
 
-        <!-- KONTENTLAR (TABS) -->
         <main class="p-8 flex-1">
             
-            <!-- 1. ASOSIY PANEL SAHIFASI -->
             <div id="tab-dashboard" class="space-y-6">
                 <h2 class="text-xl font-bold text-gray-800">Asosiy panel</h2>
-                
-                <!-- Statiskalar (Cards) -->
                 <div class="grid grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs flex flex-col justify-between">
-                        <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Jami mahsulotlar</span>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-2">1,248 <span class="text-xs font-normal text-gray-400">dona</span></h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                        <span class="text-xs text-gray-400 font-medium uppercase">Jami mahsulotlar</span>
+                        <h3 id="stat-total-qty" class="text-2xl font-bold text-gray-800 mt-2">0 <span class="text-xs font-normal text-gray-400">dona</span></h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs flex flex-col justify-between">
-                        <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Jami ombor qiymati</span>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-2">187,450,000 <span class="text-xs font-normal text-gray-400">so'm</span></h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                        <span class="text-xs text-gray-400 font-medium uppercase">Jami ombor qiymati</span>
+                        <h3 id="stat-total-price" class="text-2xl font-bold text-gray-800 mt-2">0 <span class="text-xs font-normal text-gray-400">so'm</span></h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs flex flex-col justify-between">
-                        <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Kam qolganlar</span>
-                        <h3 class="text-2xl font-bold text-red-500 mt-2">23 <span class="text-xs font-normal text-gray-400">turda</span></h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                        <span class="text-xs text-gray-400 font-medium uppercase">Kam qolganlar (&lt;15 ta)</span>
+                        <h3 id="stat-low-stock" class="text-2xl font-bold text-red-500 mt-2">0 <span class="text-xs font-normal text-gray-400">turda</span></h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs flex flex-col justify-between">
-                        <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Bugungi kirim</span>
-                        <h3 class="text-2xl font-bold text-green-600 mt-2">12 <span class="text-xs font-normal text-gray-400">ta</span></h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                        <span class="text-xs text-gray-400 font-medium uppercase">Kategoriyalar</span>
+                        <h3 id="stat-categories" class="text-2xl font-bold text-green-600 mt-2">0 <span class="text-xs font-normal text-gray-400">ta</span></h3>
                     </div>
                 </div>
-
-                <!-- Grafiklar qismi -->
                 <div class="grid grid-cols-3 gap-6">
-                    <!-- Line Chart -->
-                    <div class="col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-4">Ombor harakati (7 kun)</h4>
-                        <div class="h-64">
-                            <canvas id="lineChart"></canvas>
-                        </div>
-                    </div>
-                    <!-- Pie Chart -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-4">Kategoriya bo'yicha</h4>
-                        <div class="h-64 flex justify-center items-center">
-                            <canvas id="pieChart"></canvas>
-                        </div>
-                    </div>
+                    <div class="col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-xs"><h4 class="text-sm font-semibold text-gray-700 mb-4">Ombor harakati statistikasi</h4><div class="h-64"><canvas id="lineChart"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs"><h4 class="text-sm font-semibold text-gray-700 mb-4">Kategoriya ulushi</h4><div class="h-64 flex justify-center items-center"><canvas id="pieChart"></canvas></div></div>
                 </div>
             </div>
 
-            <!-- 2. MAHSULOTLAR SAHIFASI (Default yashirin) -->
             <div id="tab-products" class="space-y-6 hidden">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Mahsulotlar</h2>
-                    <!-- Tugmalar -->
-                    <div class="flex space-x-3 text-sm">
-                        <button class="bg-white border border-gray-200 px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-50 flex items-center space-x-2 font-medium">
-                            <i class="fa-solid fa-download"></i> <span>Import</span>
-                        </button>
-                        <button class="bg-white border border-gray-200 px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-50 flex items-center space-x-2 font-medium">
-                            <i class="fa-solid fa-upload"></i> <span>Export</span>
-                        </button>
-                        <button class="bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 flex items-center space-x-2 font-medium">
-                            <i class="fa-solid fa-plus"></i> <span>Yangi mahsulot</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filtrlar Paneli -->
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex flex-wrap gap-4 items-center justify-between text-sm">
-                    <div class="flex flex-wrap gap-4">
-                        <div class="flex flex-col">
-                            <label class="text-xs text-gray-400 mb-1">Kategoriya</label>
-                            <select class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
-                                <option>Barchasi</option>
-                                <option>G'iloflar</option>
-                                <option>Zaryadlovchilar</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-xs text-gray-400 mb-1">Ombor</label>
-                            <select class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
-                                <option>Barchasi</option>
-                                <option>Asosiy ombor</option>
-                                <option>Zaxira ombor</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-xs text-gray-400 mb-1">Holat</label>
-                            <select class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
-                                <option>Barchasi</option>
-                                <option>Aktiv</option>
-                                <option>Kam qolgan</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="border border-gray-200 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-50 mt-4">
-                        <i class="fa-solid fa-sliders"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Mahsulotlar ombori</h2>
+                    <button onclick="openModal()" class="bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 flex items-center space-x-2 font-medium text-sm">
+                        <i class="fa-solid fa-plus"></i> <span>Yangi mahsulot</span>
                     </button>
                 </div>
-
-                <!-- Mahsulotlar Jadvali (Table) -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex gap-4 items-center text-sm">
+                    <div class="flex flex-col w-44">
+                        <label class="text-xs text-gray-400 mb-1">Kategoriya</label>
+                        <select id="filterCategory" onchange="renderProducts()" class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
+                            <option value="Barchasi">Barchasi</option>
+                            <option value="G'iloflar">G'iloflar</option>
+                            <option value="Zaryadlovchilar">Zaryadlovchilar</option>
+                            <option value="Kabellar">Kabellar</option>
+                            <option value="Quloqchinlar">Quloqchinlar</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col w-44">
+                        <label class="text-xs text-gray-400 mb-1">Ombor</label>
+                        <select id="filterWarehouse" onchange="renderProducts()" class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
+                            <option value="Barchasi">Barchasi</option>
+                            <option value="Asosiy ombor">Asosiy ombor</option>
+                            <option value="Zaxira ombor">Zaxira ombor</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
@@ -216,148 +125,326 @@
                                 <th class="p-4 text-center">Amallar</th>
                             </tr>
                         </thead>
-                        <tbody class="text-gray-700 divide-y divide-gray-100">
-                            <!-- 1-qator -->
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="p-4 text-center text-gray-400">1</td>
-                                <td class="p-4 font-semibold text-gray-900">iPhone 15 Case</td>
-                                <td class="p-4 text-gray-500 font-mono text-xs">IM-C15-BK</td>
-                                <td class="p-4">G'iloflar</td>
-                                <td class="p-4">Asosiy ombor</td>
-                                <td class="p-4 text-center font-medium">45</td>
-                                <td class="p-4 font-medium text-gray-900">150,000 so'm</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold">Aktiv</span></td>
-                                <td class="p-4 text-center space-x-2 text-gray-400">
-                                    <button class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
-                                </td>
-                            </tr>
-                            <!-- 2-qator -->
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="p-4 text-center text-gray-400">2</td>
-                                <td class="p-4 font-semibold text-gray-900">AirPods Pro 2 Case</td>
-                                <td class="p-4 text-gray-500 font-mono text-xs">AP2-CASE-W</td>
-                                <td class="p-4">G'iloflar</td>
-                                <td class="p-4">Asosiy ombor</td>
-                                <td class="p-4 text-center font-medium">28</td>
-                                <td class="p-4 font-medium text-gray-900">120,000 so'm</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold">Aktiv</span></td>
-                                <td class="p-4 text-center space-x-2 text-gray-400">
-                                    <button class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
-                                </td>
-                            </tr>
-                            <!-- 3-qator -->
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="p-4 text-center text-gray-400">3</td>
-                                <td class="p-4 font-semibold text-gray-900">Baseus 20W Charger</td>
-                                <td class="p-4 text-gray-500 font-mono text-xs">BSS-20W-EU</td>
-                                <td class="p-4">Zaryadlovchilar</td>
-                                <td class="p-4">Asosiy ombor</td>
-                                <td class="p-4 text-center font-medium">60</td>
-                                <td class="p-4 font-medium text-gray-900">180,000 so'm</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold">Aktiv</span></td>
-                                <td class="p-4 text-center space-x-2 text-gray-400">
-                                    <button class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
-                                </td>
-                            </tr>
-                            <!-- 4-qator -->
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="p-4 text-center text-gray-400">4</td>
-                                <td class="p-4 font-semibold text-gray-900">Wireless Earbuds X1</td>
-                                <td class="p-4 text-gray-500 font-mono text-xs">WE-X1-BK</td>
-                                <td class="p-4">Quloqchinlar</td>
-                                <td class="p-4">Asosiy ombor</td>
-                                <td class="p-4 text-center font-medium">12</td>
-                                <td class="p-4 font-medium text-gray-900">250,000 so'm</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-amber-50 text-amber-600 rounded-md text-xs font-semibold">Kam qolgan</span></td>
-                                <td class="p-4 text-center space-x-2 text-gray-400">
-                                    <button class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="productTableBody" class="text-gray-700 divide-y divide-gray-100">
+                            </tbody>
                     </table>
-                    
-                    <!-- Pagination (Sahifalash) -->
-                    <div class="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                        <span>Jami: 1,248 ta mahsulot</span>
-                        <div class="flex items-center space-x-1">
-                            <button class="px-2.5 py-1.5 border border-gray-200 bg-white rounded-md text-gray-800 font-semibold shadow-2xs">1</button>
-                            <button class="px-2.5 py-1.5 text-gray-500 hover:bg-gray-100 rounded-md">2</button>
-                            <button class="px-2.5 py-1.5 text-gray-500 hover:bg-gray-100 rounded-md">3</button>
-                            <span class="px-1 text-gray-400">...</span>
-                            <button class="px-2.5 py-1.5 text-gray-500 hover:bg-gray-100 rounded-md">25</button>
-                        </div>
+                </div>
+            </div>
+
+            <div id="tab-kirim" class="space-y-6 hidden">
+                <h2 class="text-xl font-bold text-gray-800">Omborga kirim qilish</h2>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 max-w-lg shadow-xs space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mahsulotni tanlang</label>
+                        <select id="kirimProductSelect" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50"></select>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kirim miqdori (dona)</label>
+                        <input type="number" id="kirimQty" class="w-full border border-gray-200 rounded-lg p-2" placeholder="Masalan: 50">
+                    </div>
+                    <button onclick="executeKirim()" class="w-full bg-green-600 text-white p-2 rounded-xl font-semibold hover:bg-green-700 transition-colors">Kirimni saqlash</button>
+                </div>
+            </div>
+
+            <div id="tab-chiqim" class="space-y-6 hidden">
+                <h2 class="text-xl font-bold text-gray-800">Ombordan chiqim (Sotuv) qilish</h2>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 max-w-lg shadow-xs space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mahsulotni tanlang</label>
+                        <select id="chiqimProductSelect" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chiqim miqdori (dona)</label>
+                        <input type="number" id="chiqimQty" class="w-full border border-gray-200 rounded-lg p-2" placeholder="Masalan: 10">
+                    </div>
+                    <button onclick="executeChiqim()" class="w-full bg-red-600 text-white p-2 rounded-xl font-semibold hover:bg-red-700 transition-colors">Chiqimni saqlash</button>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- JAVASCRIPT (Interaktivlik va Grafiklar uchun) -->
+    <div id="productModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-md shadow-xl space-y-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Yangi mahsulot qo'shish</h3>
+            <input type="hidden" id="editProductId">
+            <div class="space-y-3 text-sm">
+                <div><label class="block text-gray-600 mb-1">Mahsulot nomi</label><input type="text" id="pName" class="w-full border border-gray-200 rounded-lg p-2"></div>
+                <div><label class="block text-gray-600 mb-1">SKU (Kod)</label><input type="text" id="pSku" class="w-full border border-gray-200 rounded-lg p-2" placeholder="IM-XXX-XX"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-gray-600 mb-1">Kategoriya</label>
+                        <select id="pCategory" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                            <option>G'iloflar</option><option>Zaryadlovchilar</option><option>Kabellar</option><option>Quloqchinlar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 mb-1">Ombor</label>
+                        <select id="pWarehouse" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                            <option>Asosiy ombor</option><option>Zaxira ombor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-gray-600 mb-1">Boshlang'ich miqdor</label><input type="number" id="pQty" class="w-full border border-gray-200 rounded-lg p-2"></div>
+                    <div><label class="block text-gray-600 mb-1">Sotuv narxi (so'm)</label><input type="number" id="pPrice" class="w-full border border-gray-200 rounded-lg p-2"></div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium">Bekor qilish</button>
+                <button onclick="saveProduct()" class="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 text-sm font-medium">Saqlash</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Sahifalarni o'zgartirish funksiyasi (Tabs)
+        // Boshlang'ich test ma'lumotlar (Agar baza bo'sh bo'lsa yuklanadi)
+        const defaultProducts = [
+            { id: 1, name: "iPhone 15 Case", sku: "IM-C15-BK", category: "G'iloflar", warehouse: "Asosiy ombor", qty: 45, price: 150000 },
+            { id: 2, name: "AirPods Pro 2 Case", sku: "AP2-CASE-W", category: "G'iloflar", warehouse: "Asosiy ombor", qty: 12, price: 120000 },
+            { id: 3, name: "Baseus 20W Charger", sku: "BSS-20W-EU", category: "Zaryadlovchilar", warehouse: "Asosiy ombor", qty: 60, price: 180000 },
+            { id: 4, name: "USB-C Cable 1m", sku: "USBC-1M", category: "Kabellar", warehouse: "Zaxira ombor", qty: 8, price: 70000 }
+        ];
+
+        // Mahalliy bazadan ma'lumotlarni o'qish
+        let products = JSON.parse(localStorage.getItem('imarket_products')) || defaultProducts;
+
+        function saveToStorage() {
+            localStorage.setItem('imarket_products', JSON.stringify(products));
+            updateDashboardStats();
+            populateSelects();
+        }
+
+        // TAB ALMASHTIRISH LOGIKASI
         function switchTab(tabName) {
-            document.getElementById('tab-dashboard').classList.add('hidden');
-            document.getElementById('tab-products').classList.add('hidden');
-            document.getElementById('btn-dashboard').className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white";
-            document.getElementById('btn-products').className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white";
-            
-            if(tabName === 'dashboard') {
-                document.getElementById('tab-dashboard').classList.remove('hidden');
-                document.getElementById('btn-dashboard').className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-gray-800 text-white";
-            } else if(tabName === 'products') {
-                document.getElementById('tab-products').classList.remove('hidden');
-                document.getElementById('btn-products').className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-gray-800 text-white";
+            ['dashboard', 'products', 'kirim', 'chiqim'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`btn-${t}`).classList.remove('active-tab', 'text-white');
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabName}`).classList.add('active-tab', 'text-white');
+            if(tabName === 'products') renderProducts();
+        }
+
+        // STATISTIKALARNI YANGILASH
+        let lineChart, pieChart;
+        function updateDashboardStats() {
+            let totalQty = 0;
+            let totalPrice = 0;
+            let lowStockCount = 0;
+            let categories = new Set();
+            let catCounts = {};
+
+            products.forEach(p => {
+                totalQty += Number(p.qty);
+                totalPrice += (Number(p.qty) * Number(p.price));
+                if (Number(p.qty) < 15) lowStockCount++;
+                categories.add(p.category);
+                catCounts[p.category] = (catCounts[p.category] || 0) + Number(p.qty);
+            });
+
+            document.getElementById('stat-total-qty').innerHTML = `${totalQty.toLocaleString()} <span class="text-xs font-normal text-gray-400">dona</span>`;
+            document.getElementById('stat-total-price').innerHTML = `${totalPrice.toLocaleString()} <span class="text-xs font-normal text-gray-400">so'm</span>`;
+            document.getElementById('stat-low-stock').innerHTML = `${lowStockCount} <span class="text-xs font-normal text-gray-400">turda</span>`;
+            document.getElementById('stat-categories').innerHTML = `${categories.size} <span class="text-xs font-normal text-gray-400">ta</span>`;
+
+            // Grafiklar yangilash
+            if(pieChart) {
+                pieChart.data.labels = Object.keys(catCounts);
+                pieChart.data.datasets[0].data = Object.values(catCounts);
+                pieChart.update();
             }
         }
 
-        // --- LINE CHART (Ombor Harakati) ---
-        const ctxLine = document.getElementById('lineChart').getContext('2d');
-        new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: ['Dush', 'Sech', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
-                datasets: [{
-                    label: 'Harakatlar',
-                    data: [220, 380, 240, 310, 420, 290, 350],
-                    borderColor: '#3b82f6',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#3b82f6',
-                    tension: 0.4,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-            }
-        });
+        // JADVALGA MAHSULOTLARNI CHIQARISH
+        function renderProducts(filteredList = null) {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+            
+            let list = filteredList || products;
+            const catFilter = document.getElementById('filterCategory').value;
+            const whFilter = document.getElementById('filterWarehouse').value;
 
-        // --- PIE CHART (Kategoriyalar) ---
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
-        new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: ["G'iloflar", 'Zaryadlovchilar', 'Kabellar', 'Boshqalar'],
-                datasets: [{
-                    data: [40, 25, 20, 15],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#64748b'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
-                cutout: '70%'
+            if (!filteredList) {
+                list = list.filter(p => {
+                    return (catFilter === 'Barchasi' || p.category === catFilter) &&
+                           (whFilter === 'Barchasi' || p.warehouse === whFilter);
+                });
             }
-        });
+
+            if(list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400">Hech qanday mahsulot topilmadi.</td></tr>`;
+                return;
+            }
+
+            list.forEach((p, idx) => {
+                const statusHTML = p.qty < 15 
+                    ? `<span class="px-2 py-1 bg-amber-50 text-amber-600 rounded-md text-xs font-semibold">Kam qolgan</span>`
+                    : `<span class="px-2 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold">Aktiv</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 text-center text-gray-400">${idx + 1}</td>
+                        <td class="p-4 font-semibold text-gray-900">${p.name}</td>
+                        <td class="p-4 text-gray-500 font-mono text-xs">${p.sku}</td>
+                        <td class="p-4">${p.category}</td>
+                        <td class="p-4">${p.warehouse}</td>
+                        <td class="p-4 text-center font-medium">${p.qty}</td>
+                        <td class="p-4 font-medium text-gray-900">${Number(p.price).toLocaleString()} so'm</td>
+                        <td class="p-4">${statusHTML}</td>
+                        <td class="p-4 text-center space-x-3 text-gray-400">
+                            <button onclick="editProduct(${p.id})" class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteProduct(${p.id})" class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // QIDIRUV FUNKSIYASI
+        function searchProducts() {
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            const result = products.filter(p => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query));
+            switchTab('products');
+            renderProducts(result);
+        }
+
+        // MODAL OYNA ISHLARI
+        function openModal() {
+            document.getElementById('modalTitle').innerText = "Yangi mahsulot qo'shish";
+            document.getElementById('editProductId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pSku').value = 'IM-' + Math.floor(100+Math.random()*900);
+            document.getElementById('pQty').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productModal').classList.add('flex');
+        }
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('flex');
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // MAHSULOT SAQLASH (YANGI YOKI TAHRIRLANGAN)
+        function saveProduct() {
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('pName').value;
+            const sku = document.getElementById('pSku').value;
+            const category = document.getElementById('pCategory').value;
+            const warehouse = document.getElementById('pWarehouse').value;
+            const qty = Number(document.getElementById('pQty').value);
+            const price = Number(document.getElementById('pPrice').value);
+
+            if(!name || !sku || !qty || !price) { alert("Iltimos hamma maydonlarni to'ldiring!"); return; }
+
+            if(id) {
+                // Tahrirlash
+                let p = products.find(prod => prod.id == id);
+                p.name = name; p.sku = sku; p.category = category; p.warehouse = warehouse; p.qty = qty; p.price = price;
+            } else {
+                // Yangi qo'shish
+                products.push({ id: Date.now(), name, sku, category, warehouse, qty, price });
+            }
+            saveToStorage();
+            closeModal();
+            renderProducts();
+        }
+
+        // TAHRIRLASH (EDIT) EKRANIGA CHIQARISH
+        function editProduct(id) {
+            let p = products.find(prod => prod.id == id);
+            document.getElementById('modalTitle').innerText = "Mahsulotni tahrirlash";
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pSku').value = p.sku;
+            document.getElementById('pCategory').value = p.category;
+            document.getElementById('pWarehouse').value = p.warehouse;
+            document.getElementById('pQty').value = p.qty;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productModal').classList.add('flex');
+        }
+
+        // O'CHIRISH (DELETE)
+        function deleteProduct(id) {
+            if(confirm("Haqiqatdan ham ushbu mahsulotni o'chirmoqchisiz?")) {
+                products = products.filter(p => p.id != id);
+                saveToStorage();
+                renderProducts();
+            }
+        }
+
+        // KIRIM VA CHIQIM SELECTLARINI TO'LDIRISH
+        function populateSelects() {
+            const kirimSel = document.getElementById('kirimProductSelect');
+            const chiqimSel = document.getElementById('chiqimProductSelect');
+            if(!kirimSel || !chiqimSel) return;
+            kirimSel.innerHTML = ''; chiqimSel.innerHTML = '';
+            products.forEach(p => {
+                kirimSel.innerHTML += `<option value="${p.id}">${p.name} (Hozir: ${p.qty} ta)</option>`;
+                chiqimSel.innerHTML += `<option value="${p.id}">${p.name} (Hozir: ${p.qty} ta)</option>`;
+            });
+        }
+
+        // KIRIM AMALIYOTI
+        function executeKirim() {
+            const pid = document.getElementById('kirimProductSelect').value;
+            const qty = Number(document.getElementById('kirimQty').value);
+            if(!qty || qty <= 0) { alert("Noto'g'ri miqdor kiritildi!"); return; }
+            let p = products.find(prod => prod.id == pid);
+            p.qty += qty;
+            saveToStorage();
+            alert("Kirim muvaffaqiyatli saqlandi!");
+            document.getElementById('kirimQty').value = '';
+            switchTab('products');
+        }
+
+        // CHIQIM AMALIYOTI (SOTUV)
+        function executeChiqim() {
+            const pid = document.getElementById('chiqimProductSelect').value;
+            const qty = Number(document.getElementById('chiqimQty').value);
+            if(!qty || qty <= 0) { alert("Noto'g'ri miqdor kiritildi!"); return; }
+            let p = products.find(prod => prod.id == pid);
+            if(p.qty < qty) { alert("Omborda buncha mahsulot yo'q! Qoldiq: " + p.qty); return; }
+            p.qty -= qty;
+            saveToStorage();
+            alert("Chiqim muvaffaqiyatli saqlandi!");
+            document.getElementById('chiqimQty').value = '';
+            switchTab('products');
+        }
+
+        // GRAFIKLARNI INICIALIZATSIYA QILISH
+        window.onload = function() {
+            // Chiziqli grafik
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Dush', 'Sech', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
+                    datasets: [{
+                        label: 'Harakatlar',
+                        data: [120, 280, 190, 310, 420, 150, 290],
+                        borderColor: '#3b82f6',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // Doiraviy grafik
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'] }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            });
+
+            // Birinchi yuklashdagi hisob-kitoblar
+            updateDashboardStats();
+            populateSelects();
+        }
     </script>
 </body>
 </html>
