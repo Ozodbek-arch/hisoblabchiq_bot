@@ -2,449 +2,629 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iMarket - Omborxona Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Do'kon Boshqaruvi</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .active-tab { background-color: #1f2937; color: white; }
+        /* Deep Teal va Amber uchun maxsus ranglar */
+        :root {
+            --color-teal-dark: #004d40;
+            --color-teal-light: #00796b;
+            --color-amber: #ffb300;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="bg-gray-50 text-gray-800 font-sans antialiased pb-24 md:pb-0 md:pl-64">
 
-    <aside class="w-64 bg-[#111827] text-gray-400 flex flex-col justify-between p-4 z-10 shrink-0">
-        <div>
-            <div class="px-2 py-4 mb-6">
-                <h1 class="text-white text-3xl font-bold tracking-tight">iMarket</h1>
-                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Omborxona Web App</p>
-            </div>
-            <nav class="space-y-1">
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors active-tab">
-                    <i class="fa-solid fa-chart-pie w-5 text-left"></i> <span>Asosiy panel</span>
+<div id="app" class="min-h-screen flex flex-col">
+    
+    <div v-if="!currentUser" class="fixed inset-0 bg-[#004d40] flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-bold text-[#004d40] text-center mb-2">
+                {{ lang === 'uz' ? 'Tizimga kirish' : 'Вход в систему' }}
+            </h2>
+            <p class="text-xs text-amber-600 text-center mb-6 font-semibold">
+                {{ isFirstUser ? (lang === 'uz' ? '📌 Birinchi foydalanuvchi Do\'kon Egasi bo\'ladi' : '📌 Первый пользователь станет Владельцем') : '' }}
+            </p>
+            
+            <form @submit.prevent="handleAuth">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" v-model="authForm.email" required class="w-full border p-2.5 rounded-xl focus:outline-none focus:border-[#00796b]">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-1">{{ lang === 'uz' ? 'Parol' : 'Пароль' }}</label>
+                    <input type="password" v-model="authForm.password" required class="w-full border p-2.5 rounded-xl focus:outline-none focus:border-[#00796b]">
+                </div>
+                <button type="submit" class="w-full bg-[#ffb300] hover:bg-amber-600 text-slate-950 font-bold p-3 rounded-xl transition">
+                    {{ isFirstUser ? (lang === 'uz' ? 'Ro\'yxatdan o\'tish' : 'Регистрация') : (lang === 'uz' ? 'Kirish' : 'Войти') }}
                 </button>
-                <button onclick="switchTab('products')" id="btn-products" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-box w-5 text-left"></i> <span>Mahsulotlar</span>
-                </button>
-                <button onclick="switchTab('kirim')" id="btn-kirim" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-arrow-down w-5 text-left"></i> <span>Kirim qo'shish</span>
-                </button>
-                <button onclick="switchTab('chiqim')" id="btn-chiqim" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white">
-                    <i class="fa-solid fa-arrow-up w-5 text-left"></i> <span>Chiqim qo'shish</span>
-                </button>
-            </nav>
+            </form>
         </div>
-        <div>
-            <p class="text-xs text-gray-600 text-center mb-2">v1.0.0 Pro</p>
+    </div>
+
+    <aside class="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-64 bg-[#004d40] text-white p-4">
+        <div class="text-xl font-bold text-[#ffb300] mb-8 flex items-center gap-2">
+            <i data-lucide="store"></i> Umrnoma Pos
+        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <button v-for="tab in availableTabs" @click="currentTab = tab.id" :class="['flex items-center gap-3 p-3 rounded-xl transition text-left', currentTab === tab.id ? 'bg-[#00796b] text-white font-semibold' : 'hover:bg-teal-900/50 text-teal-100']">
+                <i :data-lucide="tab.icon" class="w-5 h-5"></i> {{ t(tab.name) }}
+            </button>
+        </nav>
+        <div class="border-t border-teal-800 pt-4 text-xs text-teal-200">
+            <div>{{ currentUser?.email }} ({{ currentUser?.role === 'owner' ? t('owner') : t('seller') }})</div>
+            <button @click="logout" class="mt-2 text-amber-400 hover:underline flex items-center gap-1">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> {{ lang === 'uz' ? 'Chiqish' : 'Выйти' }}
+            </button>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shrink-0">
-            <div class="relative w-80">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                </span>
-                <input type="text" id="globalSearch" oninput="searchProducts()" placeholder="Mahsulotlardan qidirish..." class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
-            </div>
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">O</div>
-                <div class="text-sm"><p class="font-semibold text-gray-800 leading-none">Ozodbek</p><p class="text-xs text-gray-400 mt-0.5">Administrator</p></div>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl w-full mx-auto">
+        
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-[#004d40] md:hidden">Umrnoma Pos</h1>
+            <div class="hidden md:block"></div>
+            <div class="flex items-center gap-3 bg-white p-1.5 rounded-xl shadow-sm border">
+                <button @click="toggleLang" class="px-3 py-1 text-xs font-bold rounded-lg transition" :class="lang === 'uz' ? 'bg-[#00796b] text-white' : 'text-gray-500'">UZ</button>
+                <button @click="toggleLang" class="px-3 py-1 text-xs font-bold rounded-lg transition" :class="lang === 'ru' ? 'bg-[#00796b] text-white' : 'text-gray-500'">RU</button>
             </div>
         </header>
 
-        <main class="p-8 flex-1">
-            
-            <div id="tab-dashboard" class="space-y-6">
-                <h2 class="text-xl font-bold text-gray-800">Asosiy panel</h2>
-                <div class="grid grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <span class="text-xs text-gray-400 font-medium uppercase">Jami mahsulotlar</span>
-                        <h3 id="stat-total-qty" class="text-2xl font-bold text-gray-800 mt-2">0 <span class="text-xs font-normal text-gray-400">dona</span></h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <span class="text-xs text-gray-400 font-medium uppercase">Jami ombor qiymati</span>
-                        <h3 id="stat-total-price" class="text-2xl font-bold text-gray-800 mt-2">0 <span class="text-xs font-normal text-gray-400">so'm</span></h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <span class="text-xs text-gray-400 font-medium uppercase">Kam qolganlar (&lt;15 ta)</span>
-                        <h3 id="stat-low-stock" class="text-2xl font-bold text-red-500 mt-2">0 <span class="text-xs font-normal text-gray-400">turda</span></h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                        <span class="text-xs text-gray-400 font-medium uppercase">Kategoriyalar</span>
-                        <h3 id="stat-categories" class="text-2xl font-bold text-green-600 mt-2">0 <span class="text-xs font-normal text-gray-400">ta</span></h3>
-                    </div>
+        <div v-if="lowStockProducts.length > 0 && currentTab === 'dashboard'" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex flex-col gap-1">
+            <div class="font-bold flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i> {{ lang === 'uz' ? 'Diqqat! Mahsulotlar kam qoldi:' : 'Внимание! Мало товара:' }}
+            </div>
+            <span class="text-xs" v-for="p in lowStockProducts">⚠️ {{ p.name }} — {{ lang === 'uz' ? 'Qoldiq' : 'Остаток' }}: {{ p.stock }} {{ lang === 'uz' ? 'dona' : 'шт' }}</span>
+        </div>
+
+        <section v-if="currentTab === 'dashboard'" class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-teal-600">
+                    <p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_sales') }}</p>
+                    <p class="text-lg font-bold text-gray-900 mt-1">{{ formatMoney(stats.sales) }}</p>
                 </div>
-                <div class="grid grid-cols-3 gap-6">
-                    <div class="col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-xs"><h4 class="text-sm font-semibold text-gray-700 mb-4">Ombor harakati statistikasi</h4><div class="h-64"><canvas id="lineChart"></canvas></div></div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs"><h4 class="text-sm font-semibold text-gray-700 mb-4">Kategoriya ulushi</h4><div class="h-64 flex justify-center items-center"><canvas id="pieChart"></canvas></div></div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-600">
+                    <p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_profit') }}</p>
+                    <p class="text-lg font-bold text-emerald-600 mt-1">{{ formatMoney(stats.profit) }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-rose-600">
+                    <p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_expenses') }}</p>
+                    <p class="text-lg font-bold text-rose-600 mt-1">{{ formatMoney(stats.expenses) }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500">
+                    <p class="text-xs text-gray-500 font-medium uppercase">{{ t('net_income') }}</p>
+                    <p class="text-lg font-bold text-slate-900 mt-1">{{ formatMoney(stats.net) }}</p>
                 </div>
             </div>
 
-            <div id="tab-products" class="space-y-6 hidden">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Mahsulotlar ombori</h2>
-                    <button onclick="openModal()" class="bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 flex items-center space-x-2 font-medium text-sm">
-                        <i class="fa-solid fa-plus"></i> <span>Yangi mahsulot</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border">
+                    <h3 class="font-bold text-sm text-[#004d40] mb-3 uppercase tracking-wider">{{ lang === 'uz' ? '🔥 Top sotilganlar' : '🔥 Топ продаж' }}</h3>
+                    <div class="divide-y text-sm">
+                        <div v-for="p in topProducts" class="py-2.5 flex justify-between">
+                            <span>{{ p.name }}</span>
+                            <span class="font-semibold text-teal-700">{{ p.sold }} {{ lang === 'uz' ? 'dona' : 'шт' }}</span>
+                        </div>
+                        <div v-if="topProducts.length === 0" class="py-4 text-center text-gray-400 text-xs">{{ t('no_data') }}</div>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border">
+                    <h3 class="font-bold text-sm text-red-700 mb-3 uppercase tracking-wider">{{ lang === 'uz' ? '🐌 Sekin sotilganlar' : '🐌 Медленные продажи' }}</h3>
+                    <div class="divide-y text-sm">
+                        <div v-for="p in slowProducts" class="py-2.5 flex justify-between">
+                            <span>{{ p.name }}</span>
+                            <span class="font-semibold text-gray-600">{{ p.sold }} {{ lang === 'uz' ? 'dona' : 'шт' }}</span>
+                        </div>
+                        <div v-if="slowProducts.length === 0" class="py-4 text-center text-gray-400 text-xs">{{ t('no_data') }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section v-if="currentTab === 'cart'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <input type="text" v-model="searchQuery" :placeholder="lang === 'uz' ? 'Mahsulot qidirish...' : 'Поиск товара...'" class="w-full bg-white border p-3 rounded-xl focus:outline-none focus:border-[#00796b] shadow-sm">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <button v-for="p in filteredProducts" @click="addToCart(p)" :disabled="p.stock <= 0" class="bg-white p-3 rounded-xl border text-left flex flex-col justify-between hover:border-amber-400 transition relative overflow-hidden" :class="{'opacity-50 cursor-not-allowed': p.stock <= 0}">
+                        <span class="font-semibold text-sm line-clamp-2 mb-1">{{ p.name }}</span>
+                        <div>
+                            <span class="text-xs text-gray-400 block">{{ p.category }}</span>
+                            <span class="text-sm font-bold text-teal-700">{{ formatMoney(p.sellPrice) }}</span>
+                        </div>
+                        <span class="absolute top-1 right-1 bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded font-mono">Qoldiq: {{ p.stock }}</span>
                     </button>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex gap-4 items-center text-sm">
-                    <div class="flex flex-col w-44">
-                        <label class="text-xs text-gray-400 mb-1">Kategoriya</label>
-                        <select id="filterCategory" onchange="renderProducts()" class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
-                            <option value="Barchasi">Barchasi</option>
-                            <option value="G'iloflar">G'iloflar</option>
-                            <option value="Zaryadlovchilar">Zaryadlovchilar</option>
-                            <option value="Kabellar">Kabellar</option>
-                            <option value="Quloqchinlar">Quloqchinlar</option>
-                        </select>
-                    </div>
-                    <div class="flex flex-col w-44">
-                        <label class="text-xs text-gray-400 mb-1">Ombor</label>
-                        <select id="filterWarehouse" onchange="renderProducts()" class="border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 text-gray-700 font-medium">
-                            <option value="Barchasi">Barchasi</option>
-                            <option value="Asosiy ombor">Asosiy ombor</option>
-                            <option value="Zaxira ombor">Zaxira ombor</option>
-                        </select>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between h-fit space-y-4">
+                <div>
+                    <h3 class="font-bold text-lg text-[#004d40] mb-4 flex items-center gap-2"><i data-lucide="shopping-cart"></i> {{ lang === 'uz' ? 'Savat' : 'Корзина' }}</h3>
+                    <div class="divide-y max-h-60 overflow-y-auto pr-1">
+                        <div v-for="item in cart" class="py-3 flex justify-between items-center text-sm">
+                            <div class="flex-grow pr-2">
+                                <div class="font-medium line-clamp-1">{{ item.name }}</div>
+                                <div class="text-xs text-gray-400">{{ formatMoney(item.sellPrice) }} x {{ item.qty }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button @click="changeQty(item, -1)" class="w-7 h-7 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-center">-</button>
+                                <span class="font-mono w-6 text-center text-xs">{{ item.qty }}</span>
+                                <button @click="changeQty(item, 1)" class="w-7 h-7 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-center">+</button>
+                            </div>
+                        </div>
+                        <div v-if="cart.length === 0" class="py-8 text-center text-gray-400 text-xs">{{ lang === 'uz' ? 'Savat bo\'sh' : 'Корзина пуста' }}</div>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100 text-gray-400 font-medium text-xs tracking-wider">
-                                <th class="p-4 w-12 text-center">#</th>
-                                <th class="p-4">Mahsulot nomi</th>
-                                <th class="p-4">SKU</th>
-                                <th class="p-4">Kategoriya</th>
-                                <th class="p-4">Ombor</th>
-                                <th class="p-4 text-center">Miqdor</th>
-                                <th class="p-4">Sotuv narxi</th>
-                                <th class="p-4">Holat</th>
-                                <th class="p-4 text-center">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody" class="text-gray-700 divide-y divide-gray-100">
-                            </tbody>
-                    </table>
+
+                <div v-if="cart.length > 0" class="pt-4 border-t space-y-4">
+                    <div class="flex justify-between items-center font-bold text-base">
+                        <span>{{ lang === 'uz' ? 'Jami:' : 'Итого:' }}</span>
+                        <span class="text-teal-700 font-mono text-lg">{{ formatMoney(cartTotal) }}</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 font-medium mb-1">{{ lang === 'uz' ? 'To\'lov turi' : 'Тип оплаты' }}</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button @click="paymentMethod = 'cash'" :class="['p-2 text-xs font-bold rounded-xl border transition', paymentMethod === 'cash' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? '💵 Naqd' : '💵 Наличные' }}</button>
+                            <button @click="paymentMethod = 'card'" :class="['p-2 text-xs font-bold rounded-xl border transition', paymentMethod === 'card' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? '💳 Karta' : '💳 Карта' }}</button>
+                        </div>
+                    </div>
+                    <button @click="checkoutSales" class="w-full bg-[#ffb300] hover:bg-amber-600 font-bold p-3 rounded-xl transition text-sm">
+                        {{ lang === 'uz' ? 'Sotuvni yakunlash' : 'Завершить продажу' }}
+                    </button>
                 </div>
             </div>
+        </section>
 
-            <div id="tab-kirim" class="space-y-6 hidden">
-                <h2 class="text-xl font-bold text-gray-800">Omborga kirim qilish</h2>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 max-w-lg shadow-xs space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Mahsulotni tanlang</label>
-                        <select id="kirimProductSelect" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50"></select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Kirim miqdori (dona)</label>
-                        <input type="number" id="kirimQty" class="w-full border border-gray-200 rounded-lg p-2" placeholder="Masalan: 50">
-                    </div>
-                    <button onclick="executeKirim()" class="w-full bg-green-600 text-white p-2 rounded-xl font-semibold hover:bg-green-700 transition-colors">Kirimni saqlash</button>
-                </div>
+        <section v-if="currentTab === 'products'" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-[#004d40]">{{ lang === 'uz' ? 'Mahsulotlar ombori' : 'Склад товаров' }}</h3>
+                <button v-if="currentUser.role === 'owner'" @click="openProductModal()" class="bg-[#ffb300] hover:bg-amber-600 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1">
+                    <i data-lucide="plus" class="w-4 h-4"></i> {{ lang === 'uz' ? 'Qo\'shish' : 'Добавить' }}
+                </button>
             </div>
 
-            <div id="tab-chiqim" class="space-y-6 hidden">
-                <h2 class="text-xl font-bold text-gray-800">Ombordan chiqim (Sotuv) qilish</h2>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 max-w-lg shadow-xs space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px] text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
+                            <th class="p-4">{{ lang === 'uz' ? 'Nomi' : 'Название' }}</th>
+                            <th class="p-4">{{ lang === 'uz' ? 'Kategoriya' : 'Категория' }}</th>
+                            <th class="p-4 text-right">{{ lang === 'uz' ? 'Xarid' : 'Закуп' }}</th>
+                            <th class="p-4 text-right">{{ lang === 'uz' ? 'Sotuv' : 'Продажа' }}</th>
+                            <th class="p-4 text-center">{{ lang === 'uz' ? 'Qoldiq' : 'Остаток' }}</th>
+                            <th v-if="currentUser.role === 'owner'" class="p-4 text-center">{{ lang === 'uz' ? 'Amallar' : 'Действия' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr v-for="p in products" :key="p.id" class="hover:bg-gray-50/50">
+                            <td class="p-4 font-medium">{{ p.name }}</td>
+                            <td class="p-4 text-gray-500 text-xs"><span class="bg-gray-100 px-2 py-1 rounded-md">{{ p.category }}</span></td>
+                            <td class="p-4 text-right font-mono text-gray-600">{{ formatMoney(p.buyPrice) }}</td>
+                            <td class="p-4 text-right font-mono font-semibold text-teal-700">{{ formatMoney(p.sellPrice) }}</td>
+                            <td class="p-4 text-center font-mono">
+                                <span :class="['px-2 py-0.5 rounded font-bold text-xs', p.stock <= p.minStock ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700']">
+                                    {{ p.stock }}
+                                </span>
+                            </td>
+                            <td v-if="currentUser.role === 'owner'" class="p-4 text-center space-x-2">
+                                <button @click="openProductModal(p)" class="text-blue-600 hover:text-blue-800 text-xs font-semibold">{{ lang === 'uz' ? 'Tahrirlash' : 'Редакт.' }}</button>
+                                <button @click="deleteProduct(p.id)" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">{{ lang === 'uz' ? 'O\'chirish' : 'Удалить' }}</button>
+                            </td>
+                        </tr>
+                        <tr v-if="products.length === 0">
+                            <td colspan="6" class="p-8 text-center text-gray-400 text-xs">{{ t('no_data') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section v-if="currentTab === 'expenses'" class="space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border max-w-md mx-auto">
+                <h3 class="font-bold text-base text-[#004d40] mb-4">{{ lang === 'uz' ? 'Yangi xarajat qo\'shish' : 'Добавить расход' }}</h3>
+                <form @submit.prevent="addExpense" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Mahsulotni tanlang</label>
-                        <select id="chiqimProductSelect" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50"></select>
+                        <label class="block text-xs font-medium mb-1">{{ lang === 'uz' ? 'Kategoriya' : 'Категория' }}</label>
+                        <input type="text" v-model="expenseForm.category" required placeholder="Masalan: Ijara, Kommunal, Oylik" class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] text-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Chiqim miqdori (dona)</label>
-                        <input type="number" id="chiqimQty" class="w-full border border-gray-200 rounded-lg p-2" placeholder="Masalan: 10">
+                        <label class="block text-xs font-medium mb-1">{{ lang === 'uz' ? 'Summa' : 'Сумма' }}</label>
+                        <input type="number" v-model.number="expenseForm.amount" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] font-mono text-sm">
                     </div>
-                    <button onclick="executeChiqim()" class="w-full bg-red-600 text-white p-2 rounded-xl font-semibold hover:bg-red-700 transition-colors">Chiqimni saqlash</button>
+                    <div>
+                        <label class="block text-xs text-gray-400 font-medium mb-1">{{ lang === 'uz' ? 'To\'lov turi' : 'Тип оплаты' }}</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" @click="expenseForm.method = 'cash'" :class="['p-2 text-xs font-bold rounded-xl border transition', expenseForm.method === 'cash' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? '💵 Naqd' : '💵 Наличные' }}</button>
+                            <button type="button" @click="expenseForm.method = 'card'" :class="['p-2 text-xs font-bold rounded-xl border transition', expenseForm.method === 'card' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? '💳 Karta' : '💳 Карта' }}</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-2.5 rounded-xl transition text-sm">
+                        {{ lang === 'uz' ? 'Saqlash' : 'Сохранить' }}
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section v-if="currentTab === 'reports'" class="space-y-6 max-w-xl mx-auto">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border">
+                <label class="block text-xs font-medium mb-2">{{ lang === 'uz' ? 'Davrni tanlang' : 'Выберите период' }}</label>
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    <button @click="reportPeriod = 'today'" :class="['p-2 text-xs font-bold rounded-xl border transition', reportPeriod === 'today' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? 'Bugun' : 'Сегодня' }}</button>
+                    <button @click="reportPeriod = 'week'" :class="['p-2 text-xs font-bold rounded-xl border transition', reportPeriod === 'week' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? 'Hafta' : 'Неделя' }}</button>
+                    <button @click="reportPeriod = 'month'" :class="['p-2 text-xs font-bold rounded-xl border transition', reportPeriod === 'month' ? 'bg-[#00796b] text-white border-transparent' : 'bg-gray-50 text-gray-600']">{{ lang === 'uz' ? 'Oy' : 'Месяц' }}</button>
+                </div>
+
+                <div class="bg-slate-900 text-green-400 p-4 rounded-xl font-mono text-xs whitespace-pre-wrap relative group">
+                    {{ generateReportText() }}
+                    <button @click="copyReport" class="absolute top-2 right-2 bg-slate-800 group-hover:bg-slate-700 text-white px-2.5 py-1 rounded text-[10px] font-sans border border-slate-700 transition active:scale-95">
+                        {{ copySuccess ? (lang === 'uz' ? 'Nusxalandi! ✅' : 'Скопировано! ✅') : (lang === 'uz' ? 'Nusxa olish 📋' : 'Копировать 📋') }}
+                    </button>
                 </div>
             </div>
+        </section>
 
-        </main>
-    </div>
+    </main>
 
-    <div id="productModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-6 w-md shadow-xl space-y-4">
-            <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Yangi mahsulot qo'shish</h3>
-            <input type="hidden" id="editProductId">
-            <div class="space-y-3 text-sm">
-                <div><label class="block text-gray-600 mb-1">Mahsulot nomi</label><input type="text" id="pName" class="w-full border border-gray-200 rounded-lg p-2"></div>
-                <div><label class="block text-gray-600 mb-1">SKU (Kod)</label><input type="text" id="pSku" class="w-full border border-gray-200 rounded-lg p-2" placeholder="IM-XXX-XX"></div>
+    <div v-if="productModal.show" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md overflow-y-auto max-h-[90vh]">
+            <h3 class="font-bold text-lg text-[#004d40] mb-4">
+                {{ productModal.form.id ? (lang === 'uz' ? 'Mahsulotni tahrirlash' : 'Редактировать товар') : (lang === 'uz' ? 'Yangi mahsulot' : 'Новый товар') }}
+            </h3>
+            <form @submit.prevent="saveProduct" class="space-y-4 text-sm">
+                <div>
+                    <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Nomi' : 'Название' }}</label>
+                    <input type="text" v-model="productModal.form.name" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b]">
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Kategoriya' : 'Категория' }}</label>
+                    <input type="text" v-model="productModal.form.category" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b]">
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-gray-600 mb-1">Kategoriya</label>
-                        <select id="pCategory" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
-                            <option>G'iloflar</option><option>Zaryadlovchilar</option><option>Kabellar</option><option>Quloqchinlar</option>
-                        </select>
+                        <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Xarid narxi' : 'Цена закупа' }}</label>
+                        <input type="number" v-model.number="productModal.form.buyPrice" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] font-mono">
                     </div>
                     <div>
-                        <label class="block text-gray-600 mb-1">Ombor</label>
-                        <select id="pWarehouse" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
-                            <option>Asosiy ombor</option><option>Zaxira ombor</option>
-                        </select>
+                        <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Sotuv narxi' : 'Цена продажи' }}</label>
+                        <input type="number" v-model.number="productModal.form.sellPrice" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] font-mono">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-gray-600 mb-1">Boshlang'ich miqdor</label><input type="number" id="pQty" class="w-full border border-gray-200 rounded-lg p-2"></div>
-                    <div><label class="block text-gray-600 mb-1">Sotuv narxi (so'm)</label><input type="number" id="pPrice" class="w-full border border-gray-200 rounded-lg p-2"></div>
+                    <div>
+                        <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Dastlabki qoldiq' : 'Остаток' }}</label>
+                        <input type="number" v-model.number="productModal.form.stock" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">{{ lang === 'uz' ? 'Minimal qoldiq' : 'Мин. остаток' }}</label>
+                        <input type="number" v-model.number="productModal.form.minStock" required class="w-full border p-2 rounded-xl focus:outline-none focus:border-[#00796b] font-mono">
+                    </div>
                 </div>
-            </div>
-            <div class="flex justify-end space-x-3 pt-2">
-                <button onclick="closeModal()" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium">Bekor qilish</button>
-                <button onclick="saveProduct()" class="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 text-sm font-medium">Saqlash</button>
-            </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" @click="productModal.show = false" class="w-1/2 bg-gray-100 hover:bg-gray-200 p-2.5 rounded-xl font-medium text-gray-700 transition">
+                        {{ lang === 'uz' ? 'Bekor qilish' : 'Отмена' }}
+                    </button>
+                    <button type="submit" class="w-1/2 bg-[#ffb300] hover:bg-amber-600 text-slate-950 font-bold p-2.5 rounded-xl transition">
+                        {{ lang === 'uz' ? 'Saqlash' : 'Сохранить' }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script>
-        // Boshlang'ich test ma'lumotlar (Agar baza bo'sh bo'lsa yuklanadi)
-        const defaultProducts = [
-            { id: 1, name: "iPhone 15 Case", sku: "IM-C15-BK", category: "G'iloflar", warehouse: "Asosiy ombor", qty: 45, price: 150000 },
-            { id: 2, name: "AirPods Pro 2 Case", sku: "AP2-CASE-W", category: "G'iloflar", warehouse: "Asosiy ombor", qty: 12, price: 120000 },
-            { id: 3, name: "Baseus 20W Charger", sku: "BSS-20W-EU", category: "Zaryadlovchilar", warehouse: "Asosiy ombor", qty: 60, price: 180000 },
-            { id: 4, name: "USB-C Cable 1m", sku: "USBC-1M", category: "Kabellar", warehouse: "Zaxira ombor", qty: 8, price: 70000 }
-        ];
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#004d40] text-teal-100 border-t border-teal-800 flex justify-around p-2 items-center z-40 shadow-2xl">
+        <button v-for="tab in availableTabs" @click="currentTab = tab.id" class="flex flex-col items-center gap-1 text-[10px] py-1 transition relative min-w-[55px]" :class="currentTab === tab.id ? 'text-[#ffb300] font-bold' : 'opacity-70'">
+            <i :data-lucide="tab.icon" class="w-5 h-5"></i>
+            <span>{{ t(tab.name) }}</span>
+            <span v-if="tab.id === 'cart' && cart.length > 0" class="absolute -top-1 right-2 bg-amber-500 text-slate-950 rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-mono font-bold">
+                {{ cart.length }}
+            </span>
+        </button>
+        <button @click="logout" class="flex flex-col items-center gap-1 text-[10px] py-1 opacity-70 text-rose-300">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            <span>{{ lang === 'uz' ? 'Chiqish' : 'Выход' }}</span>
+        </button>
+    </nav>
 
-        // Mahalliy bazadan ma'lumotlarni o'qish
-        let products = JSON.parse(localStorage.getItem('imarket_products')) || defaultProducts;
+</div>
 
-        function saveToStorage() {
-            localStorage.setItem('imarket_products', JSON.stringify(products));
-            updateDashboardStats();
-            populateSelects();
-        }
+<script>
+    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
 
-        // TAB ALMASHTIRISH LOGIKASI
-        function switchTab(tabName) {
-            ['dashboard', 'products', 'kirim', 'chiqim'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-${t}`).classList.remove('active-tab', 'text-white');
-            });
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`btn-${tabName}`).classList.add('active-tab', 'text-white');
-            if(tabName === 'products') renderProducts();
-        }
-
-        // STATISTIKALARNI YANGILASH
-        let lineChart, pieChart;
-        function updateDashboardStats() {
-            let totalQty = 0;
-            let totalPrice = 0;
-            let lowStockCount = 0;
-            let categories = new Set();
-            let catCounts = {};
-
-            products.forEach(p => {
-                totalQty += Number(p.qty);
-                totalPrice += (Number(p.qty) * Number(p.price));
-                if (Number(p.qty) < 15) lowStockCount++;
-                categories.add(p.category);
-                catCounts[p.category] = (catCounts[p.category] || 0) + Number(p.qty);
-            });
-
-            document.getElementById('stat-total-qty').innerHTML = `${totalQty.toLocaleString()} <span class="text-xs font-normal text-gray-400">dona</span>`;
-            document.getElementById('stat-total-price').innerHTML = `${totalPrice.toLocaleString()} <span class="text-xs font-normal text-gray-400">so'm</span>`;
-            document.getElementById('stat-low-stock').innerHTML = `${lowStockCount} <span class="text-xs font-normal text-gray-400">turda</span>`;
-            document.getElementById('stat-categories').innerHTML = `${categories.size} <span class="text-xs font-normal text-gray-400">ta</span>`;
-
-            // Grafiklar yangilash
-            if(pieChart) {
-                pieChart.data.labels = Object.keys(catCounts);
-                pieChart.data.datasets[0].data = Object.values(catCounts);
-                pieChart.update();
-            }
-        }
-
-        // JADVALGA MAHSULOTLARNI CHIQARISH
-        function renderProducts(filteredList = null) {
-            const tbody = document.getElementById('productTableBody');
-            tbody.innerHTML = '';
-            
-            let list = filteredList || products;
-            const catFilter = document.getElementById('filterCategory').value;
-            const whFilter = document.getElementById('filterWarehouse').value;
-
-            if (!filteredList) {
-                list = list.filter(p => {
-                    return (catFilter === 'Barchasi' || p.category === catFilter) &&
-                           (whFilter === 'Barchasi' || p.warehouse === whFilter);
-                });
-            }
-
-            if(list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400">Hech qanday mahsulot topilmadi.</td></tr>`;
-                return;
-            }
-
-            list.forEach((p, idx) => {
-                const statusHTML = p.qty < 15 
-                    ? `<span class="px-2 py-1 bg-amber-50 text-amber-600 rounded-md text-xs font-semibold">Kam qolgan</span>`
-                    : `<span class="px-2 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold">Aktiv</span>`;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="p-4 text-center text-gray-400">${idx + 1}</td>
-                        <td class="p-4 font-semibold text-gray-900">${p.name}</td>
-                        <td class="p-4 text-gray-500 font-mono text-xs">${p.sku}</td>
-                        <td class="p-4">${p.category}</td>
-                        <td class="p-4">${p.warehouse}</td>
-                        <td class="p-4 text-center font-medium">${p.qty}</td>
-                        <td class="p-4 font-medium text-gray-900">${Number(p.price).toLocaleString()} so'm</td>
-                        <td class="p-4">${statusHTML}</td>
-                        <td class="p-4 text-center space-x-3 text-gray-400">
-                            <button onclick="editProduct(${p.id})" class="hover:text-blue-600"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteProduct(${p.id})" class="hover:text-red-600"><i class="fa-solid fa-trash text-xs"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        // QIDIRUV FUNKSIYASI
-        function searchProducts() {
-            const query = document.getElementById('globalSearch').value.toLowerCase();
-            const result = products.filter(p => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query));
-            switchTab('products');
-            renderProducts(result);
-        }
-
-        // MODAL OYNA ISHLARI
-        function openModal() {
-            document.getElementById('modalTitle').innerText = "Yangi mahsulot qo'shish";
-            document.getElementById('editProductId').value = '';
-            document.getElementById('pName').value = '';
-            document.getElementById('pSku').value = 'IM-' + Math.floor(100+Math.random()*900);
-            document.getElementById('pQty').value = '';
-            document.getElementById('pPrice').value = '';
-            document.getElementById('productModal').classList.remove('hidden');
-            document.getElementById('productModal').classList.add('flex');
-        }
-        function closeModal() {
-            document.getElementById('productModal').classList.remove('flex');
-            document.getElementById('productModal').classList.add('hidden');
-        }
-
-        // MAHSULOT SAQLASH (YANGI YOKI TAHRIRLANGAN)
-        function saveProduct() {
-            const id = document.getElementById('editProductId').value;
-            const name = document.getElementById('pName').value;
-            const sku = document.getElementById('pSku').value;
-            const category = document.getElementById('pCategory').value;
-            const warehouse = document.getElementById('pWarehouse').value;
-            const qty = Number(document.getElementById('pQty').value);
-            const price = Number(document.getElementById('pPrice').value);
-
-            if(!name || !sku || !qty || !price) { alert("Iltimos hamma maydonlarni to'ldiring!"); return; }
-
-            if(id) {
-                // Tahrirlash
-                let p = products.find(prod => prod.id == id);
-                p.name = name; p.sku = sku; p.category = category; p.warehouse = warehouse; p.qty = qty; p.price = price;
-            } else {
-                // Yangi qo'shish
-                products.push({ id: Date.now(), name, sku, category, warehouse, qty, price });
-            }
-            saveToStorage();
-            closeModal();
-            renderProducts();
-        }
-
-        // TAHRIRLASH (EDIT) EKRANIGA CHIQARISH
-        function editProduct(id) {
-            let p = products.find(prod => prod.id == id);
-            document.getElementById('modalTitle').innerText = "Mahsulotni tahrirlash";
-            document.getElementById('editProductId').value = p.id;
-            document.getElementById('pName').value = p.name;
-            document.getElementById('pSku').value = p.sku;
-            document.getElementById('pCategory').value = p.category;
-            document.getElementById('pWarehouse').value = p.warehouse;
-            document.getElementById('pQty').value = p.qty;
-            document.getElementById('pPrice').value = p.price;
-            document.getElementById('productModal').classList.remove('hidden');
-            document.getElementById('productModal').classList.add('flex');
-        }
-
-        // O'CHIRISH (DELETE)
-        function deleteProduct(id) {
-            if(confirm("Haqiqatdan ham ushbu mahsulotni o'chirmoqchisiz?")) {
-                products = products.filter(p => p.id != id);
-                saveToStorage();
-                renderProducts();
-            }
-        }
-
-        // KIRIM VA CHIQIM SELECTLARINI TO'LDIRISH
-        function populateSelects() {
-            const kirimSel = document.getElementById('kirimProductSelect');
-            const chiqimSel = document.getElementById('chiqimProductSelect');
-            if(!kirimSel || !chiqimSel) return;
-            kirimSel.innerHTML = ''; chiqimSel.innerHTML = '';
-            products.forEach(p => {
-                kirimSel.innerHTML += `<option value="${p.id}">${p.name} (Hozir: ${p.qty} ta)</option>`;
-                chiqimSel.innerHTML += `<option value="${p.id}">${p.name} (Hozir: ${p.qty} ta)</option>`;
-            });
-        }
-
-        // KIRIM AMALIYOTI
-        function executeKirim() {
-            const pid = document.getElementById('kirimProductSelect').value;
-            const qty = Number(document.getElementById('kirimQty').value);
-            if(!qty || qty <= 0) { alert("Noto'g'ri miqdor kiritildi!"); return; }
-            let p = products.find(prod => prod.id == pid);
-            p.qty += qty;
-            saveToStorage();
-            alert("Kirim muvaffaqiyatli saqlandi!");
-            document.getElementById('kirimQty').value = '';
-            switchTab('products');
-        }
-
-        // CHIQIM AMALIYOTI (SOTUV)
-        function executeChiqim() {
-            const pid = document.getElementById('chiqimProductSelect').value;
-            const qty = Number(document.getElementById('chiqimQty').value);
-            if(!qty || qty <= 0) { alert("Noto'g'ri miqdor kiritildi!"); return; }
-            let p = products.find(prod => prod.id == pid);
-            if(p.qty < qty) { alert("Omborda buncha mahsulot yo'q! Qoldiq: " + p.qty); return; }
-            p.qty -= qty;
-            saveToStorage();
-            alert("Chiqim muvaffaqiyatli saqlandi!");
-            document.getElementById('chiqimQty').value = '';
-            switchTab('products');
-        }
-
-        // GRAFIKLARNI INICIALIZATSIYA QILISH
-        window.onload = function() {
-            // Chiziqli grafik
-            const ctxLine = document.getElementById('lineChart').getContext('2d');
-            lineChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: ['Dush', 'Sech', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
-                    datasets: [{
-                        label: 'Harakatlar',
-                        data: [120, 280, 190, 310, 420, 150, 290],
-                        borderColor: '#3b82f6',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: false
-                    }]
+    createApp({
+        setup() {
+            // 📝 LOCALISED TRANSLATIONS
+            const lang = ref(localStorage.getItem('lang') || 'uz');
+            const strings = {
+                uz: {
+                    dashboard: 'Dashboard', cart: 'Savat/Sotuv', products: 'Ombor', expenses: 'Xarajatlar', reports: 'Hisobotlar',
+                    today_sales: 'Bugungi Sotuv', today_profit: 'Bugungi Foyda', today_expenses: 'Bugungi Xarajat', net_income: 'Sof Daromad',
+                    no_data: 'Ma\'lumotlar mavjud emas', owner: 'Do\'kon Egasi', seller: 'Sotuvchi'
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                ru: {
+                    dashboard: 'Главная', cart: 'Корзина/Продажи', products: 'Склад', expenses: 'Расходы', reports: 'Отчеты',
+                    today_sales: 'Продажи за сегодня', today_profit: 'Прибыль за сегодня', today_expenses: 'Расходы за сегодня', net_income: 'Чистый доход',
+                    no_data: 'Данных нет', owner: 'Владелец', seller: 'Продавец'
+                }
+            };
+            const t = (key) => strings[lang.value][key] || key;
+            const toggleLang = () => {
+                lang.value = lang.value === 'uz' ? 'ru' : 'uz';
+                localStorage.setItem('lang', lang.value);
+            };
+
+            // 👥 AUTHENTICATION STATE
+            const users = ref(JSON.parse(localStorage.getItem('users')) || []);
+            const currentUser = ref(JSON.parse(localStorage.getItem('currentUser')) || null);
+            const authForm = ref({ email: '', password: '' });
+            const isFirstUser = computed(() => users.value.length === 0);
+
+            const handleAuth = () => {
+                if (isFirstUser.value) {
+                    // Birinchi ro'yxatdan o'tgan egasi
+                    const newUser = { email: authForm.value.email, password: authForm.value.password, role: 'owner' };
+                    users.value.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(users.value));
+                    currentUser.value = newUser;
+                } else {
+                    // Kirish
+                    const user = users.value.find(u => u.email === authForm.value.email && u.password === authForm.value.password);
+                    if (user) {
+                        currentUser.value = user;
+                    } else {
+                        alert(lang.value === 'uz' ? 'Email yoki parol xato!' : 'Неверный email или пароль!');
+                        return;
+                    }
+                }
+                localStorage.setItem('currentUser', JSON.stringify(currentUser.value));
+                authForm.value = { email: '', password: '' };
+                nextTick(initIcons);
+            };
+
+            const logout = () => {
+                currentUser.value = null;
+                localStorage.removeItem('currentUser');
+            };
+
+            // 🧭 NAVIGATION (Rollar bo'yicha cheklov)
+            const currentTab = ref('dashboard');
+            const allTabs = [
+                { id: 'dashboard', name: 'dashboard', icon: 'layout-dashboard', roles: ['owner', 'seller'] },
+                { id: 'cart', name: 'cart', icon: 'shopping-basket', roles: ['owner', 'seller'] },
+                { id: 'products', name: 'products', icon: 'boxes', roles: ['owner', 'seller'] },
+                { id: 'expenses', name: 'expenses', icon: 'wallet', roles: ['owner'] },
+                { id: 'reports', name: 'reports', icon: 'file-text', roles: ['owner'] },
+            ];
+            const availableTabs = computed(() => {
+                if (!currentUser.value) return [];
+                return allTabs.filter(tab => tab.roles.includes(currentUser.value.role));
             });
 
-            // Doiraviy grafik
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            pieChart = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'] }] },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            // 📦 PRODUCTS STATE
+            const products = ref(JSON.parse(localStorage.getItem('products')) || []);
+            const searchQuery = ref('');
+            const filteredProducts = computed(() => {
+                if (!searchQuery.value) return products.value;
+                return products.value.filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.value.toLowerCase()));
+            });
+            const lowStockProducts = computed(() => products.value.filter(p => p.stock <= p.minStock));
+
+            const productModal = ref({ show: false, form: { id: null, name: '', category: '', buyPrice: 0, sellPrice: 0, stock: 0, minStock: 2 } });
+            
+            const openProductModal = (product = null) => {
+                if (product) {
+                    productModal.value.form = { ...product };
+                } else {
+                    productModal.value.form = { id: null, name: '', category: '', buyPrice: 0, sellPrice: 0, stock: 0, minStock: 2 };
+                }
+                productModal.value.show = true;
+            };
+
+            const saveProduct = () => {
+                const form = productModal.value.form;
+                if (form.id) {
+                    const idx = products.value.findIndex(p => p.id === form.id);
+                    products.value[idx] = { ...form };
+                } else {
+                    form.id = Date.now();
+                    form.sold = 0;
+                    products.value.push({ ...form });
+                }
+                localStorage.setItem('products', JSON.stringify(products.value));
+                productModal.value.show = false;
+            };
+
+            const deleteProduct = (id) => {
+                if (confirm(lang.value === 'uz' ? 'Ishonchingiz komilmi?' : 'Вы уверены?')) {
+                    products.value = products.value.filter(p => p.id !== id);
+                    localStorage.setItem('products', JSON.stringify(products.value));
+                }
+            };
+
+            // 🛒 CART & SALES MANAGEMENT
+            const cart = ref([]);
+            const paymentMethod = ref('cash');
+            const cartTotal = computed(() => cart.value.reduce((sum, item) => sum + (item.sellPrice * item.qty), 0));
+
+            const addToCart = (product) => {
+                const exist = cart.value.find(item => item.id === product.id);
+                if (exist) {
+                    if (exist.qty < product.stock) exist.qty++;
+                } else {
+                    cart.value.push({ ...product, qty: 1 });
+                }
+            };
+
+            const changeQty = (item, diff) => {
+                const product = products.value.find(p => p.id === item.id);
+                item.qty += diff;
+                if (item.qty <= 0) {
+                    cart.value = cart.value.filter(i => i.id !== item.id);
+                } else if (item.qty > product.stock) {
+                    item.qty = product.stock;
+                }
+            };
+
+            // Transactions History (Sales & Expenses)
+            const sales = ref(JSON.parse(localStorage.getItem('sales')) || []);
+            const expenses = ref(JSON.parse(localStorage.getItem('expenses')) || []);
+
+            const checkoutSales = () => {
+                // Avtomatik qoldiqni kamaytirish va sotilganlar statistikasini yangilash
+                cart.value.forEach(item => {
+                    const product = products.value.find(p => p.id === item.id);
+                    if (product) {
+                        product.stock -= item.qty;
+                        product.sold = (product.sold || 0) + item.qty;
+                    }
+                });
+                localStorage.setItem('products', JSON.stringify(products.value));
+
+                // Savdoni tarixga saqlash
+                const newSale = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    items: cart.value.map(i => ({ id: i.id, name: i.name, qty: i.qty, buyPrice: i.buyPrice, sellPrice: i.sellPrice })),
+                    total: cartTotal.value,
+                    profit: cart.value.reduce((sum, i) => sum + ((i.sellPrice - i.buyPrice) * i.qty), 0),
+                    method: paymentMethod.value
+                };
+                sales.value.push(newSale);
+                localStorage.setItem('sales', JSON.stringify(sales.value));
+
+                cart.value = [];
+                alert(lang.value === 'uz' ? 'Xarid muvaffaqiyatli yakunlandi!' : 'Продажа успешно совершена!');
+                currentTab.value = 'dashboard';
+            };
+
+            // 💸 EXPENSES
+            const expenseForm = ref({ category: '', amount: 0, method: 'cash' });
+            const addExpense = () => {
+                expenses.value.push({
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    ...expenseForm.value
+                });
+                localStorage.setItem('expenses', JSON.stringify(expenses.value));
+                expenseForm.value = { category: '', amount: 0, method: 'cash' };
+                alert(lang.value === 'uz' ? 'Xarajat saqlandi!' : 'Расход сохранен!');
+                currentTab.value = 'dashboard';
+            };
+
+            // 📊 DASHBOARD STATS & ANALYTICS
+            const stats = computed(() => {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const todaySales = sales.value.filter(s => s.date.startsWith(todayStr));
+                const todayExpenses = expenses.value.filter(e => e.date.startsWith(todayStr));
+
+                const tSalesAmt = todaySales.reduce((sum, s) => sum + s.total, 0);
+                const tProfitAmt = todaySales.reduce((sum, s) => sum + s.profit, 0);
+                const tExpensesAmt = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+                return {
+                    sales: tSalesAmt,
+                    profit: tProfitAmt,
+                    expenses: tExpensesAmt,
+                    net: tProfitAmt - tExpensesAmt
+                };
             });
 
-            // Birinchi yuklashdagi hisob-kitoblar
-            updateDashboardStats();
-            populateSelects();
+            const topProducts = computed(() => {
+                return [...products.value].filter(p => p.sold > 0).sort((a, b) => b.sold - a.sold).slice(0, 5);
+            });
+
+            const slowProducts = computed(() => {
+                return [...products.value].filter(p => p.sold >= 0).sort((a, b) => a.sold - b.sold).slice(0, 5);
+            });
+
+            // 📄 REPORTS DATA GENERATOR
+            const reportPeriod = ref('today');
+            const copySuccess = ref(false);
+
+            const generateReportText = () => {
+                const now = new Date();
+                let filteredSales = [];
+                let filteredExpenses = [];
+
+                if (reportPeriod.value === 'today') {
+                    const todayStr = now.toISOString().split('T')[0];
+                    filteredSales = sales.value.filter(s => s.date.startsWith(todayStr));
+                    filteredExpenses = expenses.value.filter(e => e.date.startsWith(todayStr));
+                } else if (reportPeriod.value === 'week') {
+                    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    filteredSales = sales.value.filter(s => new Date(s.date) >= oneWeekAgo);
+                    filteredExpenses = expenses.value.filter(e => new Date(e.date) >= oneWeekAgo);
+                } else if (reportPeriod.value === 'month') {
+                    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    filteredSales = sales.value.filter(s => new Date(s.date) >= oneMonthAgo);
+                    filteredExpenses = expenses.value.filter(e => new Date(e.date) >= oneMonthAgo);
+                }
+
+                const totalSales = filteredSales.reduce((sum, s) => sum + s.total, 0);
+                const totalProfit = filteredSales.reduce((sum, s) => sum + s.profit, 0);
+                const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+                const netIncome = totalProfit - totalExpenses;
+
+                const cashSales = filteredSales.filter(s => s.method === 'cash').reduce((sum, s) => sum + s.total, 0);
+                const cardSales = filteredSales.filter(s => s.method === 'card').reduce((sum, s) => sum + s.total, 0);
+
+                if (lang.value === 'uz') {
+                    return `📊 UMRNOMA POS HISOBOT (${reportPeriod.value.toUpperCase()})\n` +
+                           `📅 Sana: ${now.toLocaleDateString('uz-UZ')}\n` +
+                           `----------------------------\n` +
+                           `💰 Umumiy Savdo: ${formatMoney(totalSales)}\n` +
+                           `   💵 Naqd: ${formatMoney(cashSales)}\n` +
+                           `   💳 Karta: ${formatMoney(cardSales)}\n` +
+                           `📈 Yalpi Foyda: ${formatMoney(totalProfit)}\n` +
+                           `📉 Xarajatlar: ${formatMoney(totalExpenses)}\n` +
+                           `----------------------------\n` +
+                           `💵 SOF DAROMAD: ${formatMoney(netIncome)}`;
+                } else {
+                    return `📊 UMRNOMA POS ОТЧЕТ (${reportPeriod.value.toUpperCase()})\n` +
+                           `📅 Дата: ${now.toLocaleDateString('ru-RU')}\n` +
+                           `----------------------------\n` +
+                           `💰 Общие Продажи: ${formatMoney(totalSales)}\n` +
+                           `   💵 Наличные: ${formatMoney(cashSales)}\n` +
+                           `   💳 Карта: ${formatMoney(cardSales)}\n` +
+                           `📈 Валовая Прибыль: ${formatMoney(totalProfit)}\n` +
+                           `📉 Расходы: ${formatMoney(totalExpenses)}\n` +
+                           `----------------------------\n` +
+                           `💵 ЧИСТЫЙ ДОХОД: ${formatMoney(netIncome)}`;
+                }
+            };
+
+            const copyReport = () => {
+                const text = generateReportText();
+                navigator.clipboard.writeText(text).then(() => {
+                    copySuccess.value = true;
+                    setTimeout(() => copySuccess.value = false, 2000);
+                });
+            };
+
+            // 🛠 HELPERS
+            const formatMoney = (v) => new Intl.NumberFormat('uz-UZ').format(v) + (lang.value === 'uz' ? ' so\'m' : ' сум');
+            const initIcons = () => { if (window.lucide) lucide.createIcons(); };
+
+            watch(currentTab, () => nextTick(initIcons));
+            onMounted(() => nextTick(initIcons));
+
+            return {
+                lang, t, toggleLang,
+                currentUser, authForm, isFirstUser, handleAuth, logout,
+                currentTab, availableTabs,
+                products, searchQuery, filteredProducts, lowStockProducts, productModal, openProductModal, saveProduct, deleteProduct,
+                cart, paymentMethod, cartTotal, addToCart, changeQty, checkoutSales,
+                expenseForm, addExpense,
+                stats, topProducts, slowProducts,
+                reportPeriod, copySuccess, generateReportText, copyReport,
+                formatMoney
+            };
         }
-    </script>
+    }).mount('#app');
+</script>
 </body>
 </html>
