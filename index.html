@@ -1,414 +1,1180 @@
+# iMarket - Omborxona Web App
+
+Mana sizga screenshot'dagi dizaynda, to'liq ishlaydigan, ma'lumotlarni eslab qoladigan (localStorage), chiroyli Telegram Web App:
+
+```html
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Do'kon Boshqaruvi</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root { --color-teal-dark: #004d40; --color-teal-light: #00796b; --color-amber: #ffb300; }
-        body { -webkit-tap-highlight-color: transparent; user-select: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>iMarket - Omborxona</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+:root {
+  --sidebar:#0d0d0d;
+  --sidebar-hover:#1a1a1a;
+  --sidebar-text:#a0a0a0;
+  --sidebar-active:#ffffff;
+  --bg:#f5f6f8;
+  --card:#ffffff;
+  --text:#1a1a1a;
+  --text-2:#6b7280;
+  --border:#e5e7eb;
+  --primary:#111827;
+  --primary-hover:#000000;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --info:#3b82f6;
+}
+body { background:var(--bg); color:var(--text); min-height:100vh; }
+.app { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width:260px; background:var(--sidebar); color:#fff;
+  padding:24px 16px; position:fixed; height:100vh; overflow-y:auto;
+  z-index:100; transition:transform .3s;
+}
+.sidebar-logo { font-size:28px; font-weight:800; margin-bottom:32px; padding:0 12px; letter-spacing:-1px; }
+.sidebar-logo span { color:#6b7280; font-weight:400; font-size:14px; display:block; margin-top:4px; letter-spacing:0; }
+.nav-item {
+  display:flex; align-items:center; gap:12px; padding:12px;
+  border-radius:10px; color:var(--sidebar-text); cursor:pointer;
+  margin-bottom:4px; font-size:14px; font-weight:500; transition:all .2s;
+}
+.nav-item:hover { background:var(--sidebar-hover); color:#fff; }
+.nav-item.active { background:var(--sidebar-hover); color:#fff; }
+.nav-item svg { width:20px; height:20px; flex-shrink:0; }
+.nav-section { font-size:11px; color:#555; padding:16px 12px 8px; text-transform:uppercase; letter-spacing:1px; }
+
+/* MAIN */
+.main { flex:1; margin-left:260px; padding:24px 32px; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.page-title { font-size:26px; font-weight:700; }
+.page-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+/* BUTTONS */
+.btn {
+  padding:10px 18px; border:none; border-radius:10px; cursor:pointer;
+  font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px;
+  transition:all .2s;
+}
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { background:var(--primary-hover); }
+.btn-secondary { background:#fff; color:var(--text); border:1px solid var(--border); }
+.btn-secondary:hover { background:#f9fafb; }
+.btn-success { background:var(--success); color:#fff; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-icon { padding:8px; }
+
+/* CARDS */
+.card { background:var(--card); border-radius:14px; padding:20px; border:1px solid var(--border); }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
+.stat-card { background:var(--card); border-radius:14px; padding:20px; border:1px solid var(--border); }
+.stat-label { font-size:13px; color:var(--text-2); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.stat-value { font-size:28px; font-weight:700; margin-bottom:4px; }
+.stat-change { font-size:12px; color:var(--success); }
+.stat-change.down { color:var(--danger); }
+
+/* TABLE */
+.table-wrap { background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; }
+.table-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.search-input {
+  flex:1; min-width:200px; padding:9px 14px; border:1px solid var(--border);
+  border-radius:8px; font-size:14px; outline:none;
+}
+.search-input:focus { border-color:var(--primary); }
+.filter-select { padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; background:#fff; outline:none; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:14px 20px; text-align:left; font-size:14px; border-bottom:1px solid var(--border); }
+th { background:#fafafa; font-weight:600; color:var(--text-2); font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#fafafa; }
+.badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; display:inline-block; }
+.badge-success { background:#d1fae5; color:#065f46; }
+.badge-warning { background:#fef3c7; color:#92400e; }
+.badge-danger { background:#fee2e2; color:#991b1b; }
+.badge-info { background:#dbeafe; color:#1e40af; }
+.actions-cell { display:flex; gap:6px; }
+.action-btn { width:32px; height:32px; border:none; background:#f3f4f6; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.action-btn:hover { background:#e5e7eb; }
+.action-btn.delete:hover { background:#fee2e2; color:var(--danger); }
+
+/* PAGINATION */
+.pagination { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); font-size:13px; color:var(--text-2); }
+.page-btns { display:flex; gap:4px; }
+.page-btn { padding:6px 12px; border:1px solid var(--border); background:#fff; border-radius:6px; cursor:pointer; font-size:13px; }
+.page-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
+.modal-overlay.show { display:flex; }
+.modal { background:#fff; border-radius:16px; padding:28px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; }
+.modal-title { font-size:20px; font-weight:700; margin-bottom:20px; }
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text-2); }
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:10px;
+  font-size:14px; outline:none; font-family:inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--primary); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+
+/* CHART */
+.charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:24px; }
+.chart-card { background:var(--card); border-radius:14px; padding:20px; border:1px solid var(--border); }
+.chart-title { font-size:16px; font-weight:700; margin-bottom:16px; }
+
+/* TABS */
+.tabs { display:flex; gap:4px; margin-bottom:16px; background:#f3f4f6; padding:4px; border-radius:10px; width:fit-content; }
+.tab { padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-2); }
+.tab.active { background:#fff; color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.05); }
+
+/* WAREHOUSE LIST */
+.warehouse-list { display:grid; gap:12px; }
+.warehouse-item { background:var(--card); border-radius:14px; padding:20px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.warehouse-info h3 { font-size:16px; margin-bottom:4px; }
+.warehouse-info p { font-size:13px; color:var(--text-2); }
+.warehouse-stats { display:flex; gap:20px; }
+.warehouse-stat { text-align:right; }
+.warehouse-stat .label { font-size:12px; color:var(--text-2); }
+.warehouse-stat .value { font-size:15px; font-weight:700; }
+
+/* REPORT */
+.report-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:20px; }
+.report-item { background:var(--card); border-radius:12px; padding:16px; border:1px solid var(--border); }
+.report-item .label { font-size:12px; color:var(--text-2); margin-bottom:4px; }
+.report-item .value { font-size:22px; font-weight:700; }
+
+/* MOBILE */
+.menu-toggle { display:none; position:fixed; top:16px; left:16px; z-index:200; background:var(--primary); color:#fff; border:none; width:44px; height:44px; border-radius:10px; cursor:pointer; }
+@media (max-width:900px) {
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; padding:16px; padding-top:70px; }
+  .menu-toggle { display:flex; align-items:center; justify-content:center; }
+  .charts-grid { grid-template-columns:1fr; }
+  .form-row { grid-template-columns:1fr; }
+  table { font-size:12px; }
+  th, td { padding:10px 12px; }
+}
+
+/* TOAST */
+.toast { position:fixed; bottom:20px; right:20px; background:var(--primary); color:#fff; padding:14px 20px; border-radius:10px; z-index:2000; transform:translateY(100px); opacity:0; transition:all .3s; font-weight:500; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.success { background:var(--success); }
+.toast.error { background:var(--danger); }
+
+.empty { text-align:center; padding:40px 20px; color:var(--text-2); }
+.empty svg { width:48px; height:48px; margin-bottom:12px; opacity:.3; }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased pb-24 md:pb-0 md:pl-64">
+<body>
 
-<div id="app" class="min-h-screen flex flex-col">
-    
-    <div v-if="!currentUser" class="fixed inset-0 bg-[#004d40] flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-            <h2 class="text-2xl font-bold text-[#004d40] text-center mb-2">
-                {{ lang === 'uz' ? 'Tizimga kirish' : 'Вход в систему' }}
-            </h2>
-            <p class="text-xs text-amber-600 text-center mb-6 font-semibold">
-                {{ isFirstUser ? '📌 Istalgan email/parol yozing (Birinchisi Ega bo\'ladi)' : '' }}
-            </p>
-            <form @submit.prevent="handleAuth">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" v-model="authForm.email" required class="w-full border p-2.5 rounded-xl focus:outline-none focus:border-[#00796b]">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-1">{{ lang === 'uz' ? 'Parol' : 'Пароль' }}</label>
-                    <input type="password" v-model="authForm.password" required class="w-full border p-2.5 rounded-xl focus:outline-none focus:border-[#00796b]">
-                </div>
-                <button type="submit" class="w-full bg-[#ffb300] hover:bg-amber-600 text-slate-950 font-bold p-3 rounded-xl transition">
-                    {{ lang === 'uz' ? 'Kirish / Ro\'yxatdan o\'tish' : 'Войти' }}
-                </button>
-            </form>
-        </div>
-    </div>
+<button class="menu-toggle" onclick="toggleSidebar()">
+  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
 
-    <aside class="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-64 bg-[#004d40] text-white p-4">
-        <div class="text-xl font-bold text-[#ffb300] mb-8 flex items-center gap-2">
-            <i data-lucide="store"></i> Umrnoma Pos
-        </div>
-        <nav class="flex flex-col gap-2 flex-grow">
-            <button v-for="tab in availableTabs" @click="currentTab = tab.id" :class="['flex items-center gap-3 p-3 rounded-xl transition text-left', currentTab === tab.id ? 'bg-[#00796b] text-white font-semibold' : 'hover:bg-teal-900/50 text-teal-100']">
-                <i :data-lucide="tab.icon" class="w-5 h-5"></i> {{ t(tab.name) }}
-            </button>
-        </nav>
-        <div class="border-t border-teal-800 pt-4 text-xs text-teal-200">
-            <div>{{ currentUser?.email }} ({{ currentUser?.role === 'owner' ? t('owner') : t('seller') }})</div>
-            <button @click="logout" class="mt-2 text-amber-400 hover:underline flex items-center gap-1">
-                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> {{ lang === 'uz' ? 'Chiqish' : 'Выйти' }}
-            </button>
-        </div>
-    </aside>
-
-    <main class="flex-grow p-4 md:p-8 max-w-6xl w-full mx-auto">
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-[#004d40] md:hidden">Umrnoma Pos</h1>
-            <div class="hidden md:block"></div>
-            <div class="flex items-center gap-3 bg-white p-1.5 rounded-xl shadow-sm border">
-                <button @click="toggleLang" class="px-3 py-1 text-xs font-bold rounded-lg transition" :class="lang === 'uz' ? 'bg-[#00796b] text-white' : 'text-gray-500'">UZ</button>
-                <button @click="toggleLang" class="px-3 py-1 text-xs font-bold rounded-lg transition" :class="lang === 'ru' ? 'bg-[#00796b] text-white' : 'text-gray-500'">RU</button>
-            </div>
-        </header>
-
-        <div v-if="lowStockProducts.length > 0 && currentTab === 'dashboard'" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex flex-col gap-1">
-            <div class="font-bold flex items-center gap-1">
-                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i> {{ lang === 'uz' ? 'Diqqat! Mahsulotlar kam qoldi:' : 'Внимание! Мало товара:' }}
-            </div>
-            <span class="text-xs" v-for="p in lowStockProducts">⚠️ {{ p.name }} — Qoldiq: {{ p.stock }} dona (Minimal: {{ p.minStock }})</span>
-        </div>
-
-        <section v-if="currentTab === 'dashboard'" class="space-y-6">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-teal-600"><p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_sales') }}</p><p class="text-lg font-bold text-gray-900 mt-1">{{ formatMoney(stats.sales) }}</p></div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-600"><p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_profit') }}</p><p class="text-lg font-bold text-emerald-600 mt-1">{{ formatMoney(stats.profit) }}</p></div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-rose-600"><p class="text-xs text-gray-500 font-medium uppercase">{{ t('today_expenses') }}</p><p class="text-lg font-bold text-rose-600 mt-1">{{ formatMoney(stats.expenses) }}</p></div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-amber-500"><p class="text-xs text-gray-500 font-medium uppercase">{{ t('net_income') }}</p><p class="text-lg font-bold text-slate-900 mt-1">{{ formatMoney(stats.net) }}</p></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-sm text-[#004d40] mb-3 uppercase tracking-wider">🔥 Top sotilganlar</h3>
-                    <div class="divide-y text-sm">
-                        <div v-for="p in topProducts" class="py-2.5 flex justify-between"><span>{{ p.name }}</span><span class="font-semibold text-teal-700">{{ p.sold }} dona</span></div>
-                        <div v-if="topProducts.length === 0" class="py-4 text-center text-gray-400 text-xs">{{ t('no_data') }}</div>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-sm text-red-700 mb-3 uppercase tracking-wider">🐌 Sekin sotilganlar</h3>
-                    <div class="divide-y text-sm">
-                        <div v-for="p in slowProducts" class="py-2.5 flex justify-between"><span>{{ p.name }}</span><span class="font-semibold text-gray-600">{{ p.sold }} dona</span></div>
-                        <div v-if="slowProducts.length === 0" class="py-4 text-center text-gray-400 text-xs">{{ t('no_data') }}</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section v-if="currentTab === 'cart'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-4">
-                <input type="text" v-model="searchQuery" placeholder="Mahsulot qidirish..." class="w-full bg-white border p-3 rounded-xl focus:outline-none focus:border-[#00796b] shadow-sm">
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <button v-for="p in filteredProducts" @click="addToCart(p)" :disabled="p.stock <= 0" class="bg-white p-3 rounded-xl border text-left flex flex-col justify-between hover:border-amber-400 transition relative overflow-hidden" :class="{'opacity-50 cursor-not-allowed': p.stock <= 0}">
-                        <span class="font-semibold text-sm line-clamp-2 mb-1">{{ p.name }}</span>
-                        <div>
-                            <span class="text-xs text-gray-400 block">{{ p.category }}</span>
-                            <span class="text-sm font-bold text-teal-700">{{ formatMoney(p.sellPrice) }}</span>
-                        </div>
-                        <span class="absolute top-1 right-1 bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded font-mono">Qoldiq: {{ p.stock }}</span>
-                    </button>
-                </div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between h-fit space-y-4">
-                <div>
-                    <h3 class="font-bold text-lg text-[#004d40] mb-4 flex items-center gap-2"><i data-lucide="shopping-cart"></i> Savat</h3>
-                    <div class="divide-y max-h-60 overflow-y-auto pr-1">
-                        <div v-for="item in cart" class="py-3 flex justify-between items-center text-sm">
-                            <div class="flex-grow pr-2">
-                                <div class="font-medium line-clamp-1">{{ item.name }}</div>
-                                <div class="text-xs text-gray-400">{{ formatMoney(item.sellPrice) }} x {{ item.qty }}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button @click="changeQty(item, -1)" class="w-7 h-7 bg-gray-100 active:bg-gray-200 rounded-lg font-bold">-</button>
-                                <span class="font-mono w-6 text-center text-xs">{{ item.qty }}</span>
-                                <button @click="changeQty(item, 1)" class="w-7 h-7 bg-gray-100 active:bg-gray-200 rounded-lg font-bold">+</button>
-                            </div>
-                        </div>
-                        <div v-if="cart.length === 0" class="py-8 text-center text-gray-400 text-xs">Savat bo'sh</div>
-                    </div>
-                </div>
-                <div v-if="cart.length > 0" class="pt-4 border-t space-y-4">
-                    <div class="flex justify-between items-center font-bold text-base"><span>Jami:</span><span class="text-teal-700 font-mono text-lg">{{ formatMoney(cartTotal) }}</span></div>
-                    <div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button @click="paymentMethod = 'cash'" :class="['p-2 text-xs font-bold rounded-xl border transition', paymentMethod === 'cash' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">💵 Naqd</button>
-                            <button @click="paymentMethod = 'card'" :class="['p-2 text-xs font-bold rounded-xl border transition', paymentMethod === 'card' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">💳 Karta</button>
-                        </div>
-                    </div>
-                    <button @click="checkoutSales" class="w-full bg-[#ffb300] hover:bg-amber-600 font-bold p-3 rounded-xl transition text-sm">Sotuvni yakunlash</button>
-                </div>
-            </div>
-        </section>
-
-        <section v-if="currentTab === 'products'" class="space-y-6">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-[#004d40]">Mahsulotlar ombori</h3>
-                <button v-if="currentUser.role === 'owner'" @click="openProductModal()" class="bg-[#ffb300] hover:bg-amber-600 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Qo'shish
-                </button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[600px] text-sm">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-500 font-medium border-b">
-                            <th class="p-4">Nomi</th><th class="p-4">Kategoriya</th><th class="p-4 text-right">Xarid</th><th class="p-4 text-right">Sotuv</th><th class="p-4 text-center">Qoldiq</th><th v-if="currentUser.role === 'owner'" class="p-4 text-center">Amallar</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        <tr v-for="p in products" :key="p.id" class="hover:bg-gray-50/50">
-                            <td class="p-4 font-medium">{{ p.name }}</td>
-                            <td class="p-4 text-gray-500 text-xs"><span class="bg-gray-100 px-2 py-1 rounded-md">{{ p.category }}</span></td>
-                            <td class="p-4 text-right font-mono text-gray-600">{{ formatMoney(p.buyPrice) }}</td>
-                            <td class="p-4 text-right font-mono font-semibold text-teal-700">{{ formatMoney(p.sellPrice) }}</td>
-                            <td class="p-4 text-center font-mono">
-                                <span :class="['px-2 py-0.5 rounded font-bold text-xs', p.stock <= p.minStock ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700']">{{ p.stock }}</span>
-                            </td>
-                            <td v-if="currentUser.role === 'owner'" class="p-4 text-center space-x-2">
-                                <button @click="openProductModal(p)" class="text-blue-600 text-xs font-semibold">Tahrirlash</button>
-                                <button @click="deleteProduct(p.id)" class="text-rose-600 text-xs font-semibold">O'chirish</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section v-if="currentTab === 'expenses'" class="space-y-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border max-w-md mx-auto">
-                <h3 class="font-bold text-base text-[#004d40] mb-4">Yangi xarajat qo'shish</h3>
-                <form @submit.prevent="addExpense" class="space-y-4">
-                    <div><label class="block text-xs font-medium mb-1">Kategoriya</label><input type="text" v-model="expenseForm.category" required placeholder="Masalan: Ijara, Oylik" class="w-full border p-2 rounded-xl text-sm"></div>
-                    <div><label class="block text-xs font-medium mb-1">Summa</label><input type="number" v-model.number="expenseForm.amount" required class="w-full border p-2 rounded-xl text-sm"></div>
-                    <div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="expenseForm.method = 'cash'" :class="['p-2 text-xs font-bold rounded-xl border', expenseForm.method === 'cash' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">💵 Naqd</button>
-                            <button type="button" @click="expenseForm.method = 'card'" :class="['p-2 text-xs font-bold rounded-xl border', expenseForm.method === 'card' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">💳 Karta</button>
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-rose-600 text-white font-bold p-2.5 rounded-xl text-sm">Saqlash</button>
-                </form>
-            </div>
-        </section>
-
-        <section v-if="currentTab === 'reports'" class="space-y-6 max-w-xl mx-auto">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                <div class="grid grid-cols-3 gap-2 mb-6">
-                    <button @click="reportPeriod = 'today'" :class="['p-2 text-xs font-bold rounded-xl border', reportPeriod === 'today' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">Bugun</button>
-                    <button @click="reportPeriod = 'week'" :class="['p-2 text-xs font-bold rounded-xl border', reportPeriod === 'week' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">Hafta</button>
-                    <button @click="reportPeriod = 'month'" :class="['p-2 text-xs font-bold rounded-xl border', reportPeriod === 'month' ? 'bg-[#00796b] text-white' : 'bg-gray-50']">Oy</button>
-                </div>
-                <div class="bg-slate-900 text-green-400 p-4 rounded-xl font-mono text-xs whitespace-pre-wrap relative group">
-                    {{ generateReportText() }}
-                    <button @click="copyReport" class="absolute top-2 right-2 bg-slate-800 text-white px-2.5 py-1 rounded text-[10px]">
-                        {{ copySuccess ? 'Nusxalandi! ✅' : 'Nusxa olish 📋' }}
-                    </button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <div v-if="productModal.show" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-            <h3 class="font-bold text-lg text-[#004d40] mb-4">Mahsulot</h3>
-            <form @submit.prevent="saveProduct" class="space-y-4 text-sm">
-                <div><label class="block font-medium mb-1">Nomi</label><input type="text" v-model="productModal.form.name" required class="w-full border p-2 rounded-xl"></div>
-                <div><label class="block font-medium mb-1">Kategoriya</label><input type="text" v-model="productModal.form.category" required class="w-full border p-2 rounded-xl"></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block font-medium mb-1">Xarid</label><input type="number" v-model.number="productModal.form.buyPrice" required class="w-full border p-2 rounded-xl"></div>
-                    <div><label class="block font-medium mb-1">Sotuv</label><input type="number" v-model.number="productModal.form.sellPrice" required class="w-full border p-2 rounded-xl"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block font-medium mb-1">Qoldiq</label><input type="number" v-model.number="productModal.form.stock" required class="w-full border p-2 rounded-xl"></div>
-                    <div><label class="block font-medium mb-1">Min. qoldiq</label><input type="number" v-model.number="productModal.form.minStock" required class="w-full border p-2 rounded-xl"></div>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" @click="productModal.show = false" class="w-1/2 bg-gray-100 p-2.5 rounded-xl">Bekor qilish</button>
-                    <button type="submit" class="w-1/2 bg-[#ffb300] font-bold p-2.5 rounded-xl">Saqlash</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#004d40] text-teal-100 border-t border-teal-800 flex justify-around p-2 items-center z-40">
-        <button v-for="tab in availableTabs" @click="currentTab = tab.id" class="flex flex-col items-center gap-1 text-[10px] py-1 transition relative min-w-[55px]" :class="currentTab === tab.id ? 'text-[#ffb300] font-bold' : 'opacity-70'">
-            <i :data-lucide="tab.icon" class="w-5 h-5"></i><span>{{ t(tab.name) }}</span>
-            <span v-if="tab.id === 'cart' && cart.length > 0" class="absolute -top-1 right-2 bg-amber-500 text-slate-950 rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-bold">{{ cart.length }}</span>
-        </button>
-        <button @click="logout" class="flex flex-col items-center gap-1 text-[10px] py-1 opacity-70 text-rose-300"><i data-lucide="log-out" class="w-5 h-5"></i><span>Chiqish</span></button>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">iMarket<span>OMBORXONA WEB APP</span></div>
+    <nav>
+      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Asosiy panel
+      </div>
+      <div class="nav-item" data-page="products" onclick="navigate('products')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7L12 3L4 7M20 7v10l-8 4M20 7l-8 4M4 7l8 4M4 7v10l8 4M12 11v10"/></svg>
+        Mahsulotlar
+      </div>
+      <div class="nav-item" data-page="income" onclick="navigate('income')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        Kirim
+      </div>
+      <div class="nav-item" data-page="expense" onclick="navigate('expense')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        Chiqim
+      </div>
+      <div class="nav-item" data-page="warehouses" onclick="navigate('warehouses')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Omborlar
+      </div>
+      <div class="nav-item" data-page="reports" onclick="navigate('reports')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Hisobotlar
+      </div>
+      <div class="nav-section">Boshqaruv</div>
+      <div class="nav-item" data-page="categories" onclick="navigate('categories')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+        Kategoriyalar
+      </div>
+      <div class="nav-item" data-page="users" onclick="navigate('users')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Foydalanuvchilar
+      </div>
+      <div class="nav-item" data-page="settings" onclick="navigate('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Sozlamalar
+      </div>
     </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent"></main>
 </div>
 
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
-    createApp({
-        setup() {
-            const lang = ref(localStorage.getItem('lang') || 'uz');
-            const strings = {
-                uz: { dashboard: 'Dashboard', cart: 'Savat', products: 'Ombor', expenses: 'Xarajat', reports: 'Hisobot', today_sales: 'Bugungi Sotuv', today_profit: 'Bugungi Foyda', today_expenses: 'Bugungi Xarajat', net_income: 'Sof Daromad', no_data: 'Yo\'q', owner: 'Ega', seller: 'Sotuvchi' },
-                ru: { dashboard: 'Главная', cart: 'Корзина', products: 'Склад', expenses: 'Расходы', reports: 'Отчеты', today_sales: 'Продажи', today_profit: 'Прибыль', today_expenses: 'Расходы', net_income: 'Чистый доход', no_data: 'Нет', owner: 'Владелец', seller: 'Продавец' }
-            };
-            const t = (key) => strings[lang.value][key] || key;
-            const toggleLang = () => { lang.value = lang.value === 'uz' ? 'ru' : 'uz'; localStorage.setItem('lang', lang.value); };
+// ============ TELEGRAM WEB APP ============
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-            const users = ref(JSON.parse(localStorage.getItem('users')) || []);
-            const currentUser = ref(JSON.parse(localStorage.getItem('currentUser')) || null);
-            const authForm = ref({ email: '', password: '' });
-            const isFirstUser = computed(() => users.value.length === 0);
+// ============ DATA STORE ============
+const DB = {
+  get(key, def=[]) { try { return JSON.parse(localStorage.getItem('imarket_'+key)) || def; } catch { return def; } },
+  set(key, val) { localStorage.setItem('imarket_'+key, JSON.stringify(val)); }
+};
 
-            const handleAuth = () => {
-                if (isFirstUser.value) {
-                    const newUser = { email: authForm.value.email, password: authForm.value.password, role: 'owner' };
-                    users.value.push(newUser);
-                    localStorage.setItem('users', JSON.stringify(users.value));
-                    currentUser.value = newUser;
-                } else {
-                    const user = users.value.find(u => u.email === authForm.value.email && u.password === authForm.value.password);
-                    if (user) currentUser.value = user; else { alert('Xato!'); return; }
-                }
-                localStorage.setItem('currentUser', JSON.stringify(currentUser.value));
-                nextTick(initIcons);
-            };
-            const logout = () => { currentUser.value = null; localStorage.removeItem('currentUser'); };
+// Initialize demo data
+function initDemoData() {
+  if (!localStorage.getItem('imarket_initialized')) {
+    DB.set('categories', [
+      {id:1,name:'G\'Iloflar',icon:''},
+      {id:2,name:'Zaryadlovchilar',icon:'🔌'},
+      {id:3,name:'Quloqchinlar',icon:'🎧'},
+      {id:4,name:'Power Bank',icon:'🔋'},
+      {id:5,name:'Aksessuarlar',icon:'⌚'}
+    ]);
+    DB.set('warehouses', [
+      {id:1,name:'Asosiy ombor',manager:'Toshkent, Chilanzar',type:'Omborxon'},
+      {id:2,name:'Zaxira ombor',manager:'Toshkent, Sergeli',type:'Asosiy'},
+      {id:3,name:'Do\'kon ombori',manager:'Toshkent, Yunusobod',type:'Jisur'}
+    ]);
+    DB.set('products', [
+      {id:1,name:'iPhone 15 Case',sku:'IM-C15-BK',categoryId:1,warehouseId:1,qty:45,price:150000,status:'active'},
+      {id:2,name:'AirPods Pro 2 Case',sku:'AP2-CASE-W',categoryId:1,warehouseId:1,qty:28,price:120000,status:'active'},
+      {id:3,name:'Baseus 20W Charger',sku:'BSS-20W-EU',categoryId:2,warehouseId:1,qty:60,price:180000,status:'active'},
+      {id:4,name:'USB-C to Lightning Cable',sku:'USBC-LGHT-1M',categoryId:3,warehouseId:1,qty:100,price:80000,status:'active'},
+      {id:5,name:'Wireless Earbuds X1',sku:'WE-X1-BK',categoryId:4,warehouseId:1,qty:15,price:250000,status:'low'},
+      {id:6,name:'Power Bank 10000mAh',sku:'PB-10K-BK',categoryId:5,warehouseId:1,qty:12,price:220000,status:'low'}
+    ]);
+    DB.set('income', [
+      {id:1,partner:'Asssiy Mobile',date:'2025-11-07',warehouseId:1,items:[{productId:3,qty:30,price:180000},{productId:4,qty:50,price:80000}],total:9400000},
+      {id:2,partner:'Techno Trade',date:'2025-10-25',warehouseId:1,items:[{productId:1,qty:20,price:140000}],total:2800000}
+    ]);
+    DB.set('expense', [
+      {id:1,type:'Sotuv',partner:'Sotuv #1245',date:'2025-11-07',warehouseId:1,items:[{productId:1,qty:2,price:160000},{productId:2,qty:1,price:120000}],total:440000},
+      {id:2,type:'Sotuv',partner:'Sotuv #1244',date:'2025-11-06',warehouseId:1,items:[{productId:3,qty:2,price:180000}],total:360000}
+    ]);
+    DB.set('users', [
+      {id:1,name:'Admin',role:'admin',phone:'+998901234567'},
+      {id:2,name:'Sotuvchi',role:'seller',phone:'+998907654321'}
+    ]);
+    localStorage.setItem('imarket_initialized','1');
+  }
+}
+initDemoData();
 
-            const currentTab = ref('dashboard');
-            const availableTabs = computed(() => {
-                if (!currentUser.value) return [];
-                const tabs = [
-                    { id: 'dashboard', name: 'dashboard', icon: 'layout-dashboard', roles: ['owner', 'seller'] },
-                    { id: 'cart', name: 'cart', icon: 'shopping-basket', roles: ['owner', 'seller'] },
-                    { id: 'products', name: 'products', icon: 'boxes', roles: ['owner', 'seller'] },
-                    { id: 'expenses', name: 'expenses', icon: 'wallet', roles: ['owner'] },
-                    { id: 'reports', name: 'reports', icon: 'file-text', roles: ['owner'] }
-                ];
-                return tabs.filter(t => t.roles.includes(currentUser.value.role));
-            });
+// ============ NAVIGATION ============
+let currentPage = 'dashboard';
+let charts = {};
 
-            // 📦 MATNLAR TAYYOR SHU YERDA BIRINCHI BOSHLACHIG'ICH BAZA SIFATIDA TURIBDI:
-            const defaultProducts = [
-                { id: 1, name: "Olma (Qizil)", category: "Mevalar", buyPrice: 8000, sellPrice: 12000, stock: 50, minStock: 5, sold: 0 },
-                { id: 2, name: "Banan (Import)", category: "Mevalar", buyPrice: 18000, sellPrice: 24000, stock: 3, minStock: 5, sold: 0 }, // Kam qolgan ogohlantirish uchun
-                { id: 3, name: "Qora Non", category: "Non mahsulotlari", buyPrice: 3000, sellPrice: 4500, stock: 30, minStock: 10, sold: 0 },
-                { id: 4, name: "Coca-Cola 1.5L", category: "Ichimliklar", buyPrice: 9500, sellPrice: 13000, stock: 40, minStock: 8, sold: 0 }
-            ];
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  renderPage();
+  if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+}
 
-            const products = ref(JSON.parse(localStorage.getItem('products')) || defaultProducts);
-            if (!localStorage.getItem('products')) {
-                localStorage.setItem('products', JSON.stringify(defaultProducts));
-            }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
 
-            const searchQuery = ref('');
-            const filteredProducts = computed(() => {
-                if (!searchQuery.value) return products.value;
-                return products.value.filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
-            });
-            const lowStockProducts = computed(() => products.value.filter(p => p.stock <= p.minStock));
+// ============ RENDER PAGES ============
+function renderPage() {
+  const main = document.getElementById('mainContent');
+  Object.values(charts).forEach(c => c?.destroy?.());
+  charts = {};
+  
+  const pages = {
+    dashboard: renderDashboard,
+    products: renderProducts,
+    income: renderIncome,
+    expense: renderExpense,
+    warehouses: renderWarehouses,
+    categories: renderCategories,
+    users: renderUsers,
+    reports: renderReports,
+    settings: renderSettings
+  };
+  (pages[currentPage] || renderDashboard)(main);
+}
 
-            const productModal = ref({ show: false, form: { id: null, name: '', category: '', buyPrice: 0, sellPrice: 0, stock: 0, minStock: 2 } });
-            const openProductModal = (p = null) => {
-                productModal.value.form = p ? { ...p } : { id: null, name: '', category: '', buyPrice: 0, sellPrice: 0, stock: 0, minStock: 2 };
-                productModal.value.show = true;
-            };
-            const saveProduct = () => {
-                const f = productModal.value.form;
-                if (f.id) {
-                    const idx = products.value.findIndex(p => p.id === f.id);
-                    products.value[idx] = { ...f };
-                } else {
-                    f.id = Date.now(); f.sold = 0; products.value.push({ ...f });
-                }
-                localStorage.setItem('products', JSON.stringify(products.value));
-                productModal.value.show = false;
-            };
-            const deleteProduct = (id) => {
-                if (confirm('O\'chirish?')) {
-                    products.value = products.value.filter(p => p.id !== id);
-                    localStorage.setItem('products', JSON.stringify(products.value));
-                }
-            };
+// ============ DASHBOARD ============
+function renderDashboard(main) {
+  const products = DB.get('products');
+  const income = DB.get('income');
+  const expense = DB.get('expense');
+  const warehouses = DB.get('warehouses');
+  const categories = DB.get('categories');
+  
+  const totalProducts = products.length;
+  const totalStock = products.reduce((s,p) => s + p.qty, 0);
+  const totalValue = products.reduce((s,p) => s + p.qty * p.price, 0);
+  const totalIncome = income.reduce((s,i) => s + i.total, 0);
+  const totalExpense = expense.reduce((s,e) => s + e.total, 0);
+  const profit = totalIncome - totalExpense;
+  
+  main.innerHTML = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Asosiy panel</div>
+        <div style="color:var(--text-2);font-size:14px;margin-top:4px;">Xush kelibsiz, ${tg.initDataUnsafe?.user?.first_name || 'Admin'}!</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
+        <button class="btn btn-primary" onclick="openProductModal()">+ Yangi mahsulot</button>
+      </div>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">📦 Jami mahsulotlar</div>
+        <div class="stat-value">${totalProducts.toLocaleString()}</div>
+        <div class="stat-change">+${products.filter(p=>p.status==='active').length} faol</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"> Jami ombor qiymati</div>
+        <div class="stat-value">${formatMoney(totalValue)}</div>
+        <div class="stat-change">so'm</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📥 Kirim (oylik)</div>
+        <div class="stat-value">${formatMoney(totalIncome)}</div>
+        <div class="stat-change">+${income.length} tranzaksiya</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📤 Chiqim (oylik)</div>
+        <div class="stat-value">${formatMoney(totalExpense)}</div>
+        <div class="stat-change down">${expense.length} tranzaksiya</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"> Foyda</div>
+        <div class="stat-value" style="color:${profit>=0?'var(--success)':'var(--danger)'}">${formatMoney(profit)}</div>
+        <div class="stat-change">${profit>=0?'↑':'↓'} so'm</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🏭 Omborlar</div>
+        <div class="stat-value">${warehouses.length}</div>
+        <div class="stat-change">${categories.length} kategoriya</div>
+      </div>
+    </div>
+    
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Ombor harakati (7 kun)</div>
+        <canvas id="chartMovement" height="100"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Kategoriya bo'yicha</div>
+        <canvas id="chartCategory" height="200"></canvas>
+      </div>
+    </div>
+    
+    <div class="charts-grid">
+      <div class="table-wrap" style="grid-column:1/-1">
+        <div class="table-header">
+          <strong>So'nggi harakatlar</strong>
+        </div>
+        <table>
+          <thead><tr><th>Sana</th><th>Turi</th><th>Hamkor</th><th>Miqdor</th><th>Summa</th></tr></thead>
+          <tbody>
+            ${[...income.map(i=>({...i,type:'Kirim',typeColor:'success'})),...expense.map(e=>({...e,type:'Chiqim',typeColor:'danger'}))]
+              .sort((a,b)=>new Date(b.date)-new Date(a.date))
+              .slice(0,5)
+              .map(t=>`<tr>
+                <td>${t.date}</td>
+                <td><span class="badge badge-${t.typeColor}">${t.type}</span></td>
+                <td>${t.partner}</td>
+                <td>${t.items.reduce((s,i)=>s+i.qty,0)} dona</td>
+                <td><strong>${formatMoney(t.total)}</strong></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  // Movement chart
+  const ctx1 = document.getElementById('chartMovement').getContext('2d');
+  charts.movement = new Chart(ctx1, {
+    type:'line',
+    data:{
+      labels:['Du','Se','Ch','Pa','Ju','Sh','Ya'],
+      datasets:[
+        {label:'Kirim',data:[120,180,150,220,190,280,240],borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',tension:.4,fill:true},
+        {label:'Chiqim',data:[80,120,100,150,130,180,160],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',tension:.4,fill:true}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}
+  });
+  
+  // Category chart
+  const catData = categories.map(c => ({
+    name: c.name,
+    value: products.filter(p=>p.categoryId===c.id).reduce((s,p)=>s+p.qty,0)
+  }));
+  const ctx2 = document.getElementById('chartCategory').getContext('2d');
+  charts.category = new Chart(ctx2, {
+    type:'doughnut',
+    data:{
+      labels: catData.map(c=>c.name),
+      datasets:[{data:catData.map(c=>c.value),backgroundColor:['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899']}]
+    },
+    options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+  });
+}
 
-            const cart = ref([]); const paymentMethod = ref('cash');
-            const cartTotal = computed(() => cart.value.reduce((s, i) => s + (i.sellPrice * i.qty), 0));
-            const addToCart = (p) => {
-                const e = cart.value.find(i => i.id === p.id);
-                if (e) { if (e.qty < p.stock) e.qty++; } else cart.value.push({ ...p, qty: 1 });
-            };
-            const changeQty = (item, d) => {
-                const p = products.value.find(i => i.id === item.id);
-                item.qty += d;
-                if (item.qty <= 0) cart.value = cart.value.filter(i => i.id !== item.id);
-                else if (item.qty > p.stock) item.qty = p.stock;
-            };
+// ============ PRODUCTS ============
+let productFilters = {search:'',category:'all',warehouse:'all',status:'all'};
+let productPage = 1;
+const perPage = 10;
 
-            const sales = ref(JSON.parse(localStorage.getItem('sales')) || []);
-            const expenses = ref(JSON.parse(localStorage.getItem('expenses')) || []);
+function renderProducts(main) {
+  const products = DB.get('products');
+  const categories = DB.get('categories');
+  const warehouses = DB.get('warehouses');
+  
+  let filtered = products.filter(p => {
+    const s = productFilters.search.toLowerCase();
+    return (!s || p.name.toLowerCase().includes(s) || p.sku.toLowerCase().includes(s)) &&
+           (productFilters.category==='all' || p.categoryId==productFilters.category) &&
+           (productFilters.warehouse==='all' || p.warehouseId==productFilters.warehouse) &&
+           (productFilters.status==='all' || p.status===productFilters.status);
+  });
+  
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const pageData = filtered.slice((productPage-1)*perPage, productPage*perPage);
+  
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Mahsulotlar</div>
+      <div class="page-actions">
+        <button class="btn btn-secondary" onclick="importProducts()">📥 Import</button>
+        <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
+        <button class="btn btn-primary" onclick="openProductModal()">+ Yangi mahsulot</button>
+      </div>
+    </div>
+    
+    <div class="table-wrap">
+      <div class="table-header">
+        <input class="search-input" placeholder=" Qidirish..." value="${productFilters.search}" oninput="productFilters.search=this.value;productPage=1;renderProducts(document.getElementById('mainContent'))">
+        <select class="filter-select" onchange="productFilters.category=this.value;productPage=1;renderProducts(document.getElementById('mainContent'))">
+          <option value="all">Kategoriya: Barchasi</option>
+          ${categories.map(c=>`<option value="${c.id}" ${productFilters.category==c.id?'selected':''}>${c.icon} ${c.name}</option>`).join('')}
+        </select>
+        <select class="filter-select" onchange="productFilters.warehouse=this.value;productPage=1;renderProducts(document.getElementById('mainContent'))">
+          <option value="all">Ombor: Barchasi</option>
+          ${warehouses.map(w=>`<option value="${w.id}" ${productFilters.warehouse==w.id?'selected':''}>${w.name}</option>`).join('')}
+        </select>
+        <select class="filter-select" onchange="productFilters.status=this.value;productPage=1;renderProducts(document.getElementById('mainContent'))">
+          <option value="all">Holat: Barchasi</option>
+          <option value="active" ${productFilters.status==='active'?'selected':''}>Aktiv</option>
+          <option value="low" ${productFilters.status==='low'?'selected':''}>Kam qolgan</option>
+          <option value="out" ${productFilters.status==='out'?'selected':''}>Tugagan</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Mahsulot nomi</th><th>SKU</th><th>Kategoriya</th><th>Ombor</th><th>Miqdor</th><th>Sotuv narxi</th><th>Holat</th><th>Amallar</th></tr></thead>
+        <tbody>
+          ${pageData.length ? pageData.map((p,i)=>{
+            const cat = categories.find(c=>c.id===p.categoryId);
+            const wh = warehouses.find(w=>w.id===p.warehouseId);
+            const status = p.qty===0?'out':p.qty<20?'low':'active';
+            const statusLabel = status==='active'?'Aktiv':status==='low'?'Kam qolgan':'Tugagan';
+            const statusClass = status==='active'?'success':status==='low'?'warning':'danger';
+            return `<tr>
+              <td>${(productPage-1)*perPage+i+1}</td>
+              <td><strong>${p.name}</strong></td>
+              <td>${p.sku}</td>
+              <td>${cat?cat.icon+' '+cat.name:'-'}</td>
+              <td>${wh?wh.name:'-'}</td>
+              <td>${p.qty}</td>
+              <td>${formatMoney(p.price)}</td>
+              <td><span class="badge badge-${statusClass}">${statusLabel}</span></td>
+              <td class="actions-cell">
+                <button class="action-btn" onclick="openProductModal(${p.id})" title="Tahrirlash">✏️</button>
+                <button class="action-btn delete" onclick="deleteProduct(${p.id})" title="O'chirish">️</button>
+              </td>
+            </tr>`;
+          }).join('') : '<tr><td colspan="9" class="empty">Mahsulot topilmadi</td></tr>'}
+        </tbody>
+      </table>
+      <div class="pagination">
+        <div>Jami: ${filtered.length} ta mahsulot</div>
+        <div class="page-btns">
+          ${Array.from({length:Math.min(totalPages,5)},(_,i)=>i+1).map(n=>`<button class="page-btn ${n===productPage?'active':''}" onclick="productPage=${n};renderProducts(document.getElementById('mainContent'))">${n}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-            const checkoutSales = () => {
-                cart.value.forEach(item => {
-                    const p = products.value.find(i => i.id === item.id);
-                    if (p) { p.stock -= item.qty; p.sold = (p.sold || 0) + item.qty; }
-                });
-                localStorage.setItem('products', JSON.stringify(products.value));
-                sales.value.push({
-                    id: Date.now(), date: new Date().toISOString(),
-                    total: cartTotal.value,
-                    profit: cart.value.reduce((s, i) => s + ((i.sellPrice - i.buyPrice) * i.qty), 0),
-                    method: paymentMethod.value
-                });
-                localStorage.setItem('sales', JSON.stringify(sales.value));
-                cart.value = []; alert('Sotildi!'); currentTab.value = 'dashboard';
-            };
+function openProductModal(id) {
+  const products = DB.get('products');
+  const categories = DB.get('categories');
+  const warehouses = DB.get('warehouses');
+  const p = id ? products.find(x=>x.id===id) : null;
+  
+  showModal(`
+    <div class="modal-title">${p?'Mahsulotni tahrirlash':'Yangi mahsulot'}</div>
+    <div class="form-group">
+      <label class="form-label">Mahsulot nomi</label>
+      <input class="form-input" id="pName" value="${p?.name||''}" placeholder="iPhone 15 Case">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">SKU</label>
+        <input class="form-input" id="pSku" value="${p?.sku||''}" placeholder="IM-C15-BK">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Miqdor</label>
+        <input class="form-input" id="pQty" type="number" value="${p?.qty||0}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Kategoriya</label>
+        <select class="form-select" id="pCat">
+          ${categories.map(c=>`<option value="${c.id}" ${p?.categoryId===c.id?'selected':''}>${c.icon} ${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ombor</label>
+        <select class="form-select" id="pWh">
+          ${warehouses.map(w=>`<option value="${w.id}" ${p?.warehouseId===w.id?'selected':''}>${w.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sotuv narxi (so'm)</label>
+      <input class="form-input" id="pPrice" type="number" value="${p?.price||0}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveProduct(${id||'null'})">Saqlash</button>
+    </div>
+  `);
+}
 
-            const expenseForm = ref({ category: '', amount: 0, method: 'cash' });
-            const addExpense = () => {
-                expenses.value.push({ id: Date.now(), date: new Date().toISOString(), ...expenseForm.value });
-                localStorage.setItem('expenses', JSON.stringify(expenses.value));
-                expenseForm.value = { category: '', amount: 0, method: 'cash' };
-                alert('Xarajat saqlandi!'); currentTab.value = 'dashboard';
-            };
+function saveProduct(id) {
+  const products = DB.get('products');
+  const data = {
+    name: document.getElementById('pName').value.trim(),
+    sku: document.getElementById('pSku').value.trim(),
+    qty: parseInt(document.getElementById('pQty').value)||0,
+    categoryId: parseInt(document.getElementById('pCat').value),
+    warehouseId: parseInt(document.getElementById('pWh').value),
+    price: parseInt(document.getElementById('pPrice').value)||0,
+    status: 'active'
+  };
+  if (!data.name || !data.sku) { toast('Nom va SKU majburiy','error'); return; }
+  
+  if (id) {
+    const idx = products.findIndex(p=>p.id===id);
+    products[idx] = {...products[idx], ...data};
+    toast('Mahsulot yangilandi','success');
+  } else {
+    data.id = Date.now();
+    products.push(data);
+    toast('Mahsulot qo\'shildi','success');
+  }
+  DB.set('products', products);
+  closeModal();
+  renderProducts(document.getElementById('mainContent'));
+}
 
-            const stats = computed(() => {
-                const today = new Date().toISOString().split('T')[0];
-                const sToday = sales.value.filter(s => s.date.startsWith(today));
-                const eToday = expenses.value.filter(e => e.date.startsWith(today));
-                const ts = sToday.reduce((s, i) => s + i.total, 0);
-                const tp = sToday.reduce((s, i) => s + i.profit, 0);
-                const te = eToday.reduce((s, i) => s + i.amount, 0);
-                return { sales: ts, profit: tp, expenses: te, net: tp - te };
-            });
+function deleteProduct(id) {
+  if (!confirm('Mahsulotni o\'chirishni xohlaysizmi?')) return;
+  DB.set('products', DB.get('products').filter(p=>p.id!==id));
+  toast('Mahsulot o\'chirildi','success');
+  renderProducts(document.getElementById('mainContent'));
+}
 
-            const topProducts = computed(() => [...products.value].filter(p => p.sold > 0).sort((a,b)=>b.sold-a.sold).slice(0,5));
-            const slowProducts = computed(() => [...products.value].filter(p => p.sold >= 0).sort((a,b)=>a.sold-b.sold).slice(0,5));
+// ============ INCOME ============
+function renderIncome(main) {
+  const income = DB.get('income');
+  const warehouses = DB.get('warehouses');
+  const products = DB.get('products');
+  
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Kirim qo'shish</div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openIncomeModal()">+ Kirim qo'shish</button>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-bottom:24px">
+      <div class="chart-title">Kirim tarixi</div>
+      <table>
+        <thead><tr><th>Sana</th><th>Hamkor</th><th>Ombor</th><th>Mahsulotlar</th><th>Jami</th><th>Amallar</th></tr></thead>
+        <tbody>
+          ${income.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(i=>{
+            const wh = warehouses.find(w=>w.id===i.warehouseId);
+            return `<tr>
+              <td>${i.date}</td>
+              <td><strong>${i.partner}</strong></td>
+              <td>${wh?.name||'-'}</td>
+              <td>${i.items.map(it=>{
+                const p = products.find(x=>x.id===it.productId);
+                return `${p?.name||'?'} × ${it.qty}`;
+              }).join(', ')}</td>
+              <td><strong>${formatMoney(i.total)}</strong></td>
+              <td><button class="action-btn delete" onclick="deleteIncome(${i.id})">🗑️</button></td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="6" class="empty">Kirim yo\'q</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
 
-            const reportPeriod = ref('today'); const copySuccess = ref(false);
-            const generateReportText = () => {
-                const tSales = sales.value.reduce((s, i) => s + i.total, 0);
-                const tProfit = sales.value.reduce((s, i) => s + i.profit, 0);
-                const tExp = expenses.value.reduce((s, i) => s + i.amount, 0);
-                return `📊 UMRNOMA POS HISOBOT\n💰 Savdo: ${tSales} so'm\n📈 Foyda: ${tProfit} so'm\n📉 Xarajat: ${tExp} so'm\n💵 SOF DAROMAD: ${tProfit - tExp} so'm`;
-            };
-            const copyReport = () => {
-                navigator.clipboard.writeText(generateReportText()).then(() => {
-                    copySuccess.value = true; setTimeout(() => copySuccess.value = false, 2000);
-                });
-            };
+function openIncomeModal() {
+  const warehouses = DB.get('warehouses');
+  const products = DB.get('products');
+  showModal(`
+    <div class="modal-title">Yangi kirim</div>
+    <div class="form-group">
+      <label class="form-label">Yetkazib beruvchi</label>
+      <input class="form-input" id="iPartner" placeholder="Asssiy Mobile">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sana</label>
+        <input class="form-input" id="iDate" type="date" value="${new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ombor</label>
+        <select class="form-select" id="iWh">
+          ${warehouses.map(w=>`<option value="${w.id}">${w.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="incomeItems">
+      <div class="form-row income-item">
+        <div class="form-group">
+          <label class="form-label">Mahsulot</label>
+          <select class="form-select iProduct">
+            ${products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Miqdor</label>
+          <input class="form-input iQty" type="number" value="1">
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="addIncomeItem()" style="margin-top:8px">+ Mahsulot qo'shish</button>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveIncome()">Kirimni saqlash</button>
+    </div>
+  `);
+}
 
-            const formatMoney = (v) => new Intl.NumberFormat('uz-UZ').format(v) + " so'm";
-            const initIcons = () => { if (window.lucide) lucide.createIcons(); };
-            watch(currentTab, () => nextTick(initIcons));
-            onMounted(() => nextTick(initIcons));
+function addIncomeItem() {
+  const products = DB.get('products');
+  const div = document.createElement('div');
+  div.className = 'form-row income-item';
+  div.style.marginTop = '8px';
+  div.innerHTML = `
+    <div class="form-group">
+      <select class="form-select iProduct">
+        ${products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <input class="form-input iQty" type="number" value="1">
+    </div>
+  `;
+  document.getElementById('incomeItems').appendChild(div);
+}
 
-            return {
-                lang, t, toggleLang, currentUser, authForm, isFirstUser, handleAuth, logout, currentTab, availableTabs,
-                products, searchQuery, filteredProducts, lowStockProducts, productModal, openProductModal, saveProduct, deleteProduct,
-                cart, paymentMethod, cartTotal, addToCart, changeQty, checkoutSales, expenseForm, addExpense, stats, topProducts, slowProducts,
-                reportPeriod, copySuccess, generateReportText, copyReport, formatMoney
-            };
-        }
-    }).mount('#app');
-</script>
-</body>
-</html>
+function saveIncome() {
+  const partner = document.getElementById('iPartner').value.trim();
+  const date = document.getElementById('iDate').value;
+  const warehouseId = parseInt(document.getElementById('iWh').value);
+  if (!partner || !date) { toast('Ma\'lumotlarni to\'ldiring','error'); return; }
+  
+  const items = [];
+  let total = 0;
+  document.querySelectorAll('.income-item').forEach(row => {
+    const productId = parseInt(row.querySelector('.iProduct').value);
+    const qty = parseInt(row.querySelector('.iQty').value)||0;
+    const products = DB.get('products');
+    const p = products.find(x=>x.id===productId);
+    if (p && qty > 0) {
+      items.push({productId, qty, price: p.price});
+      total += qty * p.price;
+      p.qty += qty;
+    }
+  });
+  
+  if (!items.length) { toast('Kamida bitta mahsulot qo\'shing','error'); return; }
+  
+  const income = DB.get('income');
+  income.push({id:Date.now(), partner, date, warehouseId, items, total});
+  DB.set('income', income);
+  DB.set('products', DB.get('products'));
+  
+  toast('Kirim qo\'shildi','success');
+  closeModal();
+  renderIncome(document.getElementById('mainContent'));
+}
+
+function deleteIncome(id) {
+  if (!confirm('Kirimni o\'chirishni xohlaysizmi?')) return;
+  const income = DB.get('income');
+  const record = income.find(i=>i.id===id);
+  if (record) {
+    const products = DB.get('products');
+    record.items.forEach(it => {
+      const p = products.find(x=>x.id===it.productId);
+      if (p) p.qty = Math.max(0, p.qty - it.qty);
+    });
+    DB.set('products', products);
+  }
+  DB.set('income', income.filter(i=>i.id!==id));
+  toast('Kirim o\'chirildi','success');
+  renderIncome(document.getElementById('mainContent'));
+}
+
+// ============ EXPENSE ============
+function renderExpense(main) {
+  const expense = DB.get('expense');
+  const warehouses = DB.get('warehouses');
+  const products = DB.get('products');
+  
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Chiqim qo'shish</div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Chiqim qo'shish</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="chart-title">Chiqim tarixi</div>
+      <table>
+        <thead><tr><th>Sana</th><th>Turi</th><th>Hamkor</th><th>Ombor</th><th>Mahsulotlar</th><th>Jami</th><th>Amallar</th></tr></thead>
+        <tbody>
+          ${expense.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>{
+            const wh = warehouses.find(w=>w.id===e.warehouseId);
+            return `<tr>
+              <td>${e.date}</td>
+              <td><span class="badge badge-info">${e.type}</span></td>
+              <td><strong>${e.partner}</strong></td>
+              <td>${wh?.name||'-'}</td>
+              <td>${e.items.map(it=>{
+                const p = products.find(x=>x.id===it.productId);
+                return `${p?.name||'?'} × ${it.qty}`;
+              }).join(', ')}</td>
+              <td><strong>${formatMoney(e.total)}</strong></td>
+              <td><button class="action-btn delete" onclick="deleteExpense(${e.id})">🗑️</button></td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="7" class="empty">Chiqim yo\'q</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openExpenseModal() {
+  const warehouses = DB.get('warehouses');
+  const products = DB.get('products');
+  showModal(`
+    <div class="modal-title">Yangi chiqim</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Chiqim turi</label>
+        <select class="form-select" id="eType">
+          <option>Sotuv</option>
+          <option>Qaytarish</option>
+          <option>Zarar</option>
+          <option>Boshqa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hamkor / Sotuv raqami</label>
+        <input class="form-input" id="ePartner" placeholder="Sotuv #1246">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sana</label>
+        <input class="form-input" id="eDate" type="date" value="${new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ombor</label>
+        <select class="form-select" id="eWh">
+          ${warehouses.map(w=>`<option value="${w.id}">${w.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="expenseItems">
+      <div class="form-row expense-item">
+        <div class="form-group">
+          <label class="form-label">Mahsulot</label>
+          <select class="form-select eProduct">
+            ${products.map(p=>`<option value="${p.id}" data-price="${p.price}">${p.name} (${p.qty} dona)</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Miqdor</label>
+          <input class="form-input eQty" type="number" value="1">
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="addExpenseItem()" style="margin-top:8px">+ Mahsulot qo'shish</button>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Chiqimni saqlash</button>
+    </div>
+  `);
+}
+
+function addExpenseItem() {
+  const products = DB.get('products');
+  const div = document.createElement('div');
+  div.className = 'form-row expense-item';
+  div.style.marginTop = '8px';
+  div.innerHTML = `
+    <div class="form-group">
+      <select class="form-select eProduct">
+        ${products.map(p=>`<option value="${p.id}" data-price="${p.price}">${p.name} (${p.qty} dona)</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <input class="form-input eQty" type="number" value="1">
+    </div>
+  `;
+  document.getElementById('expenseItems').appendChild(div);
+}
+
+function saveExpense() {
+  const type = document.getElementById('eType').value;
+  const partner = document.getElementById('ePartner').value.trim();
+  const date = document.getElementById('eDate').value;
+  const warehouseId = parseInt(document.getElementById('eWh').value);
+  if (!partner || !date) { toast('Ma\'lumotlarni to\'ldiring','error'); return; }
+  
+  const items = [];
+  let total = 0;
+  const products = DB.get('products');
+  document.querySelectorAll('.expense-item').forEach(row => {
+    const productId = parseInt(row.querySelector('.eProduct').value);
+    const qty = parseInt(row.querySelector('.eQty').value)||0;
+    const p = products.find(x=>x.id===productId);
+    if (p && qty > 0) {
+      if (p.qty < qty) { toast(`${p.name} yetarli emas`,'error'); throw new Error(); }
+      items.push({productId, qty, price: p.price});
+      total += qty * p.price;
+      p.qty -= qty;
+    }
+  });
+  
+  if (!items.length) { toast('Kamida bitta mahsulot qo\'shing','error'); return; }
+  
+  const expense = DB.get('expense');
+  expense.push({id:Date.now(), type, partner, date, warehouseId, items, total});
+  DB.set('expense', expense);
+  DB.set('products', products);
+  
+  toast('Chiqim qo\'shildi','success');
+  closeModal();
+  renderExpense(document.getElementById('mainContent'));
+}
+
+function deleteExpense(id) {
+  if (!confirm('Chiqimni o\'chirishni xohlaysizmi?')) return;
+  const expense = DB.get('expense');
+  const record = expense.find(e=>e.id===id);
+  if (record) {
+    const products = DB.get('products');
+    record.items.forEach(it => {
+      const p = products.find(x=>x.id===it.productId);
+      if (p) p.qty += it.qty;
+    });
+    DB.set('products', products);
+  }
+  DB.set('expense', expense.filter(e=>e.id!==id));
+  toast('Chiqim o\'chirildi','success');
+  renderExpense(document.getElementById('mainContent'));
+}
+
+// ============ WAREHOUSES ============
+function renderWarehouses(main) {
+  const warehouses = DB.get('warehouses');
+  const products = DB.get('products');
+  
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Omborlar</div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openWarehouseModal()">+ Yangi ombor</button>
+      </div>
+    </div>
+    <div class="warehouse-list">
+      ${warehouses.map(w=>{
+        const whProducts = products.filter(p=>p.warehouseId===w.id);
+        const count = whProducts.length;
+        const value = whProducts.reduce((s,p)=>s+p.qty*p.price,0);
+        return `<div class="warehouse-item">
+          <div class="warehouse-info">
+            <h3>🏭 ${w.name}</h3>
+            <p>Manzil: ${w.manager} · Nars: ${w.type}</p>
+          </div>
+          <div class="warehouse-stats">
+            <div class="warehouse-stat"><div class="label">Mahsulotlar</div><div class="value">${count}</div></div>
+            <div class="warehouse-stat"><div class="label">Qiymat</div><div class="value">${formatMoney(value)}</div></div>
+          </div>
+          <div class="actions-cell">
+            <button class="action-btn" onclick="openWarehouseModal(${w.id})">✏️</button>
+            <button class="action-btn delete" onclick="deleteWarehouse(${w.id})">🗑️</button>
+          </div>
+        </div>`;
+      }).join('') || '<div class="empty">Ombor yo\'q</div>'}
+    </div>
+  `;
+}
+
+function openWarehouseModal(id) {
+  const warehouses = DB.get('warehouses');
+  const w = id ? warehouses.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="modal-title">${w?'Omborni tahrirlash':'Yangi ombor'}</div>
+    <div class="form-group">
+      <label class="form-label">Ombor nomi</label>
+      <input class="form-input" id="wName" value="${w?.name||''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Manzil / Mas'ul</label>
+      <input class="form-input" id="wManager" value="${w?.manager||''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Turi</label>
+      <input class="form-input" id="wType" value="${w?.type||'Asosiy'}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveWarehouse(${id||'null'})">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveWarehouse(id) {
+  const warehouses = DB.get('warehouses');
+  const data = {
+    name: document.getElementById('wName').value.trim(),
+    manager: document.getElementById('wManager').value.trim(),
+    type: document.getElementById('wType').value.trim()
+  };
+  if (!data.name) { toast('Nom majburiy','error'); return; }
+  if (id) {
+    const idx = warehouses.findIndex(w=>w.id===id);
+    warehouses[idx] = {...warehouses[idx], ...data};
+  } else {
+    data.id = Date.now();
+    warehouses.push(data);
+  }
+  DB.set('warehouses', warehouses);
+  closeModal();
+  toast('Saqlandi','success');
+  renderWarehouses(document.getElementById('mainContent'));
+}
+
+function deleteWarehouse(id) {
+  if (!confirm('O\'chirishni xohlaysizmi?')) return;
+  DB.set('warehouses', DB.get('warehouses').filter(w=>w.id!==id));
+  toast('O\'chirildi','success');
+  renderWarehouses(document.getElementById('mainContent'));
+}
+
+// ============ CATEGORIES ============
+function renderCategories(main) {
+  const categories = DB.get('categories');
+  const products = DB.get('products');
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Kategoriyalar</div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openCategoryModal()">+ Yangi kategoriya</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Icon</th><th>Nomi</th><th>Mahsulotlar soni</th><th>Amallar</th></tr></thead>
+        <tbody>
+          ${categories.map((c,i)=>`<tr>
+            <td>${i+1}</td>
+            <td style="font-size:24px">${c.icon}</td>
+            <td><strong>${c.name}</strong></td>
+            <td>${products.filter(p=>p.categoryId===c.id).length}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="openCategoryModal(${c.id})">✏️</button>
+              <button class="action-btn delete" onclick="deleteCategory(${c.id})">🗑️</button>
+            </td>
+          </tr>`).join('') || '<tr><td colspan="5" class="empty">Kategoriya yo\'q</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openCategoryModal(id) {
+  const categories = DB.get('categories');
+  const c = id ? categories.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="modal-title">${c?'Kategoriyani tahrirlash':'Yangi kategoriya'}</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Icon (emoji)</label>
+        <input class="form-input" id="cIcon" value="${c?.icon||'📦'}" maxlength="4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomi</label>
+        <input class="form-input" id="cName" value="${c?.name||''}">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveCategory(${id||'null'})">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveCategory(id) {
+  const categories = DB.get('categories');
+  const data = {
+    icon: document.getElementById('cIcon').value.trim()||'📦',
+    name: document.getElementById('cName').value.trim()
+  };
+  if (!data.name) { toast('Nom majburiy','error'); return; }
+  if (id) {
+    const idx = categories.findIndex(c=>c.id===id);
+    categories[idx] = {...categories[idx], ...data};
+  } else {
+    data.id = Date.now();
+    categories.push(data);
+  }
+  DB.set('categories', categories);
+  closeModal();
+  toast('Saqlandi','success');
+  renderCategories(document.getElementById('mainContent'));
+}
+
+function deleteCategory(id) {
+  if (!confirm('O\'chirishni xohlaysizmi?')) return;
+  DB.set('categories', DB.get('categories').filter(c=>c.id!==id));
+  toast('O\'chirildi','success');
+  renderCategories(document.getElementById('mainContent'));
+}
+
+// ============ USERS ============
+function renderUsers(main) {
+  const users = DB.get('users');
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Foydalanuvchilar</div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openUserModal()">+ Yangi foydalanuvchi</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Ism</th><th>Rol</th><th>Telefon</th><th>Amallar</th></tr></thead>
+        <tbody>
+          ${users.map((u,i)=>`<tr>
+            <td>${i+1}</td>
+            <td><strong>${u.name}</strong></td>
+            <td><span class="badge badge-${u.role==='admin'?'info':'success'}">${u.role}</span></td>
+            <td>${u.phone}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="openUserModal(${u.id})">️</button>
+              <button class="action-btn delete" onclick="deleteUser(${u.id})">🗑️</button>
+            </td>
+          </tr>`).join('') || '<tr><td colspan="5" class="empty">Foydalanuvchi yo\'q</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openUserModal(id) {
+  const users = DB.get('users');
+  const u = id ? users.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="modal-title">${u?'Foydalanuvchini tahrirlash':'Yangi foydalanuvchi'}</div>
+    <div class="form-group">
+      <label class="form-label">Ism</label>
+      <input class="form-input" id="uName" value="${u?.name||''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Rol</label>
+        <select class="form-select" id="uRole">
+          <option value="admin" ${u?.role==='admin'?'selected':''}>Admin</option>
+          <option value="seller" ${u?.role==='seller'?'selected':''}>Sotuvchi</option>
+          <option value="warehouse" ${u?.role==='warehouse'?'selected':''}>Omborchi</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input class="form-input" id="uPhone" value="${u?.phone||''}">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn btn-primary" onclick="saveUser(${id||'null'})">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveUser(id) {
+  const users = DB.get('users');
+  const data = {
+    name: document.getElementById('uName').value.trim(),
+    role: document.getElementById('uRole').value,
+    phone: document.getElementById('uPhone').value.trim()
+  };
+  if (!data.name) { toast('Ism majburiy','error'); return; }
+  if (id) {
+    const idx = users.findIndex(u=>u.id===id);
+    users[idx] = {...users[idx], ...data};
+  } else {
+    data.id = Date.now();
+    users.push(data);
+  }
+  DB.set('users', users);
+  closeModal();
+  toast('Saqlandi','success');
+  renderUsers(document.getElementById('mainContent'));
+}
+
+function deleteUser(id) {
+  if (!confirm('O\'chirishni xohl
